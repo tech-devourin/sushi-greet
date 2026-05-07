@@ -7,7 +7,6 @@ import { Feather, Octicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '@redux/Hooks';
 import { selectUserData, setIsLoading, setUserData } from '@redux/States';
-import { useGlobalStyles } from '@styles/Styles';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
 import { makeAPIRequest } from '@utils/Helper';
 import { resetAndNavigate } from '@utils/NavigationUtil';
@@ -30,7 +29,6 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     const dispatch = useAppDispatch();
     const { apiBaseUrl } = useEnvironment();
     const { theme } = useTheme();
-    const GlobalStyles = useGlobalStyles();
     const styles = createStyles(theme);
     const userData = useAppSelector(selectUserData);
     const totalTables = tableStatus.bp + tableStatus.f + tableStatus.ot;
@@ -69,14 +67,14 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
         )
     };
 
-    const freeTableHandler = async () => {
+    const qrPrintHandler = async () => {
         modelRef.current?.close();
         dispatch(setIsLoading({ isLoading: true }));
-        const url = apiBaseUrl + `checkedOutTableReservation?table_id=${selectedTable?.id}`;
-        const response = await makeAPIRequest(url, null, 'PUT');
+        const url = apiBaseUrl + `simpleresqr/sushi`;
+        const headers: RequestInit = { headers: { 'Content-Type': "application/json", res: selectedTable?.trid } };
+        const response = await makeAPIRequest(url, null, 'POST', headers, undefined, false, undefined, false);
         if (response) {
-            Toast.show({ type: 'success', text1: 'Table freed successfully' });
-            await refreshHandler?.();
+            Toast.show({ type: 'success', text1: 'QR Code generated successfully' });
         }
         dispatch(setIsLoading({ isLoading: false }));
     };
@@ -88,12 +86,11 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     };
 
     const renderContent = (key: string | null) => {
-        console.log('uhej')
         switch (key) {
             case 'tables':
-                return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={async (item, tableId) => { modelRef.current?.replace('free'); setSelectedTable(item); }} />
-            case 'free':
-                return <AlertModal closeModal={() => { modelRef.current?.close() }} description={`Are you sure, you want to free table ${selectedTable?.n}?`} heading={`Free Table - ${selectedTable?.n}`} onConfirm={freeTableHandler} />
+                return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={(item) => { modelRef.current?.replace('qrPrint'); setSelectedTable(item); }} />
+            case 'qrPrint':
+                return <AlertModal closeModal={() => { modelRef.current?.close() }} description={`Are you sure, you want to get QR Code for table ${selectedTable?.name}?`} heading={`QR Code - ${selectedTable?.name}`} onConfirm={qrPrintHandler} />
             case 'logout':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
             default:
@@ -104,19 +101,19 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     return (
         <View style={styles.container}>
             <ModalAsBottomSheet ref={modelRef} renderContent={renderContent} showCloseBtn />
-            
+
             <View style={styles.headerRow}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText style={styles.statusText}>Table Status</CustomText>
                     <AnimatedRefreshIcon getRefreshData={refreshHandler} />
                 </View>
-                
+
                 <View style={styles.statsContainer}>
                     <View style={styles.statsBadge}>
                         <Octicons name='checklist' size={isTablet ? 22 : 18} color={theme.colors.text} />
                         <CustomText style={styles.statsValue}>{totalReservations}</CustomText>
                     </View>
-                    
+
                     <View style={[styles.statsBadge, { marginLeft: isTablet ? 15 : 10 }]}>
                         <Octicons name='people' size={isTablet ? 22 : 18} color={theme.colors.text} />
                         <CustomText style={styles.statsValue}>{totalPax}</CustomText>

@@ -63,7 +63,6 @@ export const makeAPIRequest = async (
             ...headers,
             headers: getHeaders(headers),
         };
-        console.log(url)
         if (body && (method === "POST" || method === "PUT")) {
             if (body instanceof FormData || typeof body === 'string') {
                 fetchOptions.body = body;
@@ -108,6 +107,12 @@ export const openExternalLink = (url: string) => {
 //     }
 //     return true;
 // };
+
+export const getTablesInfo = async (apiBaseUrl: string, branchId: number) => {
+    const url = apiBaseUrl + `tablestatusbybranch?br_id=${branchId}`;
+    const response = await makeAPIRequest(url, null, 'GET');
+    return response;
+};
 
 export const sleep = (milliseconds: number) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));

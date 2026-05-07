@@ -151,7 +151,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
                             <Animated.View style={[
                                 { transform: [{ translateX }] },
                                 styles.modalContent,
-                                { paddingBottom: insets.bottom > 0 ? insets.bottom + (Platform.OS === 'ios' ? 0 : 10) : 10 },
+                                { paddingBottom: insets.bottom > 0 ? (isTablet ? 0 : insets.bottom) + (Platform.OS === 'ios' ? 0 : 10) : 10 },
                                 height && { height: height, flex: 1 }
                             ]}>
                                 {renderedContent || <Text>No Data provided</Text>}
