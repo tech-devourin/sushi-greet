@@ -1,4 +1,5 @@
 import CustomText from '@components/CustomText';
+import Header from '@components/molecules/Header';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '@redux/Hooks';
@@ -6,9 +7,9 @@ import { selectBranchId } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
 import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
 import { makeAPIRequest } from '@utils/Helper';
-import { navigate } from '@utils/NavigationUtil';
+import { replace } from '@utils/NavigationUtil';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from "src/context/ThemeContext";
 import TableStatusCards from './TableStatusCards';
@@ -46,34 +47,28 @@ const GreetDashboard = ({ navigation }: any) => {
             return () => clearInterval(intervalId);
         }, [branchId]));
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitleAlign: 'left',
-            headerShadowVisible: false,
-            headerTintColor: '#000',
-            headerBackTitle: '',
-            headerTitleStyle: { fontFamily: theme.fonts.Medium, includeFontPadding: false },
-            headerBackButtonDisplayMode: 'minimal',
-            headerTitle: "Sushi Plus",
-            headerRight: () => (
-                <View style={[GlobalStyles.justifiedRow]}>
-                    <TouchableOpacity onPress={() => { navigate('Create Reservation') }} style={{ marginRight: 20, padding: 5 }}>
-                        <Feather name="plus" size={isTablet ? 30 : 25} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => { modelRef.current?.open('logout') }} style={{ marginRight: 10, padding: 5 }}>
-                        <Feather name="log-out" size={isTablet ? 30 : 25} />
-                    </TouchableOpacity>
-                </View>
-            ),
-        })
-    }, [navigation])
+
 
     return (
-        <View style={styles.container}>
-            <TableStatusCards refreshHandler={refreshHandler} tableStatus={tableStatus} totalPax={totalPax} totalReservations={reservationData?.length} modelRef={modelRef} />
-            <View style={styles.queueView}>
-                <View style={[GlobalStyles.justifiedRow, { marginBottom: 10 }]}>
-                    <CustomText style={styles.statusText}>Reservations</CustomText>
+        <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <Header
+                rightComponent={
+                    <View style={[GlobalStyles.justifiedRow]}>
+                        <TouchableOpacity onPress={() => { replace('Create Reservation') }} style={{ marginRight: 20, padding: 5 }}>
+                            <Feather name="plus" size={isTablet ? 30 : 25} color={'#fff'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => { modelRef.current?.open('logout') }} style={{ padding: 5 }}>
+                            <Feather name="log-out" size={isTablet ? 30 : 25} color={'#fff'} />
+                        </TouchableOpacity>
+                    </View>
+                }
+            />
+            <View style={styles.container}>
+                <TableStatusCards refreshHandler={refreshHandler} tableStatus={tableStatus} totalPax={totalPax} totalReservations={reservationData?.length} modelRef={modelRef} />
+                <View style={styles.queueView}>
+                    <View style={[GlobalStyles.justifiedRow]}>
+                        <CustomText style={styles.statusText}>Queue is empty</CustomText>
+                    </View>
                 </View>
             </View>
         </View>
@@ -84,7 +79,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
-        padding: 10
+        padding: 10,
+        paddingTop: 20
     },
     buttonView: {
         justifyContent: 'center',
@@ -116,7 +112,9 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     statusText: {
         fontFamily: theme.fonts.Medium,
-        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
+        fontSize: isTablet ? theme.fontSize.heading : theme.fontSize.large,
+        textAlign: 'center',
+        width: '100%'
     },
     dateTypeView: {
         backgroundColor: '#fff',

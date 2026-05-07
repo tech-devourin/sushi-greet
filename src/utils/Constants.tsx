@@ -1,6 +1,5 @@
 import { useAppSelector } from "@redux/Hooks";
 import { selectdbName, selectIpAddress } from "@redux/States";
-import { GlobalColors } from "@styles/GlobalStyleConfigs";
 import { Dimensions } from "react-native";
 
 export const BASE_URL = 'nebula-services-1.6/'
@@ -33,13 +32,13 @@ export const OTA_VERSION = 24;
 export const GREET_TABLE_STATUS_COLOR = {
     bp: '#F9F7A9',
     f: '#fff',
-    ot: GlobalColors.defaultLight
+    ot: 'lightgray'
 };
 
 export const GREET_TABLE_BORDER_COLOR = {
     bp: '#c4c165',
     f: 'lightgray',
-    ot: GlobalColors.default
+    ot: 'gray'
 };
 
 export const GREET_TABLE_STATUS_KEYS: any = {
