@@ -41,20 +41,30 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     const StatusItem = (item: string, index: number) => {
         const percentage = totalTables > 0 ? (tableStatus[item as keyof TypeTableStatus] / totalTables) * 100 : 0;
         return (
-            <TouchableOpacity key={index} style={[{ width: '30%', justifyContent: 'space-between', backgroundColor: GREET_TABLE_STATUS_COLOR[item as keyof TypeTableStatus], padding: 15, height: isTablet ? 150 : 120, borderRadius: 10, borderWidth: 0.5, borderColor: GREET_TABLE_BORDER_COLOR[item as keyof TypeTableStatus] }]}
+            <TouchableOpacity
+                key={index}
+                style={[
+                    styles.statusCard,
+                    {
+                        backgroundColor: GREET_TABLE_STATUS_COLOR[item as keyof TypeTableStatus],
+                        borderColor: GREET_TABLE_BORDER_COLOR[item as keyof TypeTableStatus]
+                    }
+                ]}
                 onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
                     setSelectedItem(item);
                     modelRef.current?.open('tables', theme.device.height * 0.75);
                 }}>
                 <View>
-                    <CustomText style={{ fontSize: theme.fontSize.heading, fontFamily: theme.fonts.SemiBold }}>{tableStatus[item as keyof TypeTableStatus]}</CustomText>
-                    <CustomText>{GREET_TABLE_STATUS_KEYS[item]}</CustomText>
+                    <CustomText style={styles.statusValueText}>{tableStatus[item as keyof TypeTableStatus]}</CustomText>
+                    <CustomText style={styles.statusLabel}>{GREET_TABLE_STATUS_KEYS[item]}</CustomText>
                 </View>
                 <View style={styles.progressBar}>
                     <View style={[styles.progressFill, { width: `${percentage}%`, backgroundColor: theme.colors.theme }]} />
                 </View>
-                <Feather name='arrow-up-right' style={{ position: 'absolute', top: 10, right: 10 }} size={isTablet ? 20 : 15} color={theme.colors.grayDark} />
+                <View style={styles.arrowIcon}>
+                    <Feather name='arrow-up-right' size={isTablet ? 22 : 18} color={theme.colors.grayDark} />
+                </View>
             </TouchableOpacity>
         )
     };
@@ -92,25 +102,29 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     };
 
     return (
-        <View style={{ marginTop: 10 }}>
+        <View style={styles.container}>
             <ModalAsBottomSheet ref={modelRef} renderContent={renderContent} showCloseBtn />
-            <View style={[GlobalStyles.justifiedRow]}>
+            
+            <View style={styles.headerRow}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText style={styles.statusText}>Table Status</CustomText>
                     <AnimatedRefreshIcon getRefreshData={refreshHandler} />
                 </View>
-                <View style={[GlobalStyles.justifiedRow]}>
-                    <View style={GlobalStyles.justifiedRow}>
-                        <Octicons name='checklist' size={isTablet ? 25 : 20} style={{ marginRight: 5 }} />
-                        <CustomText style={styles.text2}>{totalReservations}</CustomText>
+                
+                <View style={styles.statsContainer}>
+                    <View style={styles.statsBadge}>
+                        <Octicons name='checklist' size={isTablet ? 22 : 18} color={theme.colors.text} />
+                        <CustomText style={styles.statsValue}>{totalReservations}</CustomText>
                     </View>
-                    <View style={[GlobalStyles.justifiedRow, { marginLeft: isTablet ? 30 : 15 }]}>
-                        <Octicons name='people' size={isTablet ? 25 : 20} style={{ marginRight: 5 }} />
-                        <CustomText style={styles.text2}>{totalPax}</CustomText>
+                    
+                    <View style={[styles.statsBadge, { marginLeft: isTablet ? 15 : 10 }]}>
+                        <Octicons name='people' size={isTablet ? 22 : 18} color={theme.colors.text} />
+                        <CustomText style={styles.statsValue}>{totalPax}</CustomText>
                     </View>
                 </View>
             </View>
-            <View style={[GlobalStyles.justifiedRow, { marginVertical: 10 }]}>
+
+            <View style={styles.cardsRow}>
                 {Object.keys(GREET_TABLE_STATUS_KEYS).map((item: string, index: number) => StatusItem(item, index))}
             </View>
         </View>
@@ -118,25 +132,96 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
 }
 
 const createStyles = (theme: any) => StyleSheet.create({
+    container: {
+        marginTop: 15,
+        paddingHorizontal: isTablet ? 10 : 0
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 15
+    },
     statusText: {
-        fontSize: theme.fontSize.headingX,
+        fontSize: isTablet ? theme.fontSize.headingX : theme.fontSize.heading,
+        fontFamily: theme.fonts.SemiBold,
+        marginRight: 10,
+        color: theme.colors.text
+    },
+    statsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    statsBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.white,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.lightGray2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    statsValue: {
+        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
+        fontFamily: theme.fonts.Bold,
+        marginLeft: 8,
+        color: theme.colors.text
+    },
+    cardsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 5
+    },
+    statusCard: {
+        width: '31.5%',
+        justifyContent: 'space-between',
+        padding: isTablet ? 20 : 15,
+        height: isTablet ? 160 : 130,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    statusValueText: { // Renamed from statusValue to avoid conflict
+        fontSize: isTablet ? theme.fontSize.headingX * 1.3 : theme.fontSize.headingX,
+        fontFamily: theme.fonts.Bold,
+        includeFontPadding: false,
+        color: theme.colors.text
+    },
+    statusLabel: {
+        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.small,
         fontFamily: theme.fonts.Medium,
-        marginRight: 10
+        opacity: 0.8,
+        marginTop: 2,
+        color: theme.colors.text
     },
     progressBar: {
-        height: 5,
-        backgroundColor: '#fff',
+        height: isTablet ? 8 : 6,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
         width: '100%',
-        borderRadius: 5,
-        marginVertical: 5
+        borderRadius: 10,
+        marginTop: 10,
+        overflow: 'hidden'
     },
     progressFill: {
         height: '100%',
-        borderRadius: 5,
+        borderRadius: 10,
     },
-    text2: {
-        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
-        fontFamily: theme.fonts.Medium
+    arrowIcon: {
+        position: 'absolute',
+        top: isTablet ? 18 : 12,
+        right: isTablet ? 18 : 12,
+        opacity: 0.5
     }
 });
 
