@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useKeyboardOffsetHeight from '@hooks/useKeyboardOffsetHeight';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setBranchId, setdbName, setipAddress } from '@redux/States';
-import { checkBranchValidity, makeAPIRequest, openExternalLink } from '@utils/Helper';
+import { makeAPIRequest, openExternalLink } from '@utils/Helper';
 import { navigate, replace } from '@utils/NavigationUtil';
 import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -119,7 +119,7 @@ const IPConfigScreen = ({ route }: any) => {
         setLoader(true);
         const headers: RequestInit = { headers: { "Content-Type": "application/json", app: dbName } };
         const errorMsg = "Invalid Configuration";
-        const response = await makeAPIRequest(baseUrl + 'getBranchDetails', null, "GET", headers, errorMsg, false, undefined, false);
+        const response = await makeAPIRequest(baseUrl + 'getBranchDetails', null, "GET", headers, errorMsg, false, undefined, true);
         setLoader(false);
         if (response) {
             const domainName = response.applicationDomain; //only if new server
@@ -129,7 +129,7 @@ const IPConfigScreen = ({ route }: any) => {
                 setBranchSelectionView(true);
             } else {
                 const branchId = response.branches?.[0].branchId?.toString();
-                if (branchId && await checkBranchValidity(apiBaseUrl, branchId)) {
+                if (branchId) {
                     await saveBranchData(branchId, response.branches?.[0]?.branch);
                     Toast.show({ type: "success", text1: 'Device Configured Successfully' });
                     replace('EnterPin', response.branches[0]);
@@ -150,12 +150,10 @@ const IPConfigScreen = ({ route }: any) => {
         }
         const branchId: any = selectedBranch?.branchId.toString();
         if (!branchId) return;
-        if (await checkBranchValidity(apiBaseUrl, branchId)) {
-            await saveBranchData(branchId, selectedBranch?.branch ?? '');
-            setBranchSelectionView(false);
-            await navigate('EnterPin', selectedBranch);
-            Toast.show({ type: "success", text1: 'Device Configured Successfully' });
-        }
+        await saveBranchData(branchId, selectedBranch?.branch ?? '');
+        setBranchSelectionView(false);
+        await navigate('EnterPin', selectedBranch);
+        Toast.show({ type: "success", text1: 'Device Configured Successfully' });
     };
 
     useEffect(() => {
@@ -182,18 +180,21 @@ const IPConfigScreen = ({ route }: any) => {
                 <Ionicons name="chevron-back" size={isTablet ? 30 : 25} />
             </TouchableOpacity>
             }
+            <View style={styles.bgCircleBlue} />
+            <View style={styles.bgCircleYellow} />
+            <View style={styles.bgCircleMint} />
             <Image source={LogoImage} style={styles.bgLogo} />
             <CustomText style={styles.version}>v{Constants.expoConfig?.version}_{OTA_VERSION}</CustomText>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <Image source={Logo} style={styles.image} />
                     <View style={[styles.centerView]}>
-                        <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.headingX}>Initial Setup</CustomText>
+                        <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.headingX}>Initial Setup</CustomText>
                         <CustomText fontSize={theme.fontSize.large} style={{ marginTop: 5 }}>Connected Wifi {`<${currentLocalIp}>`}</CustomText>
                         <View style={{ flex: 1, width: '100%', marginVertical: 25 }}>
                             {branchSelectionView ?
                                 <Animated.View style={{ marginTop: 30, marginBottom: '40%', height: '100%' }} entering={FadeInRight.duration(500)}>
-                                    <CustomText fontFamily={theme.fonts.Regular} fontSize={theme.fontSize.large}>Select Restaurant Branch</CustomText>
+                                    <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>Select Restaurant Branch</CustomText>
                                     <View style={[styles.dropdownContainer]}>
                                         <Dropdown
                                             activeColor={theme.colors.theme_light}
@@ -216,10 +217,10 @@ const IPConfigScreen = ({ route }: any) => {
                                 :
                                 <View>
                                     <View style={{ marginVertical: 30 }}>
-                                        <CustomText fontFamily={theme.fonts.Regular} fontSize={theme.fontSize.large}>IP Configuration</CustomText>
+                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>IP Configuration</CustomText>
                                         <View style={styles.ipContainer}>
                                             {["part1", "part2", "part3", "part4"].map((part: string, index: number) => (
-                                                <View key={index} style={[{ width: isTablet ? '15%' : '23%' }, styles.boxView, focusedInput === part && styles.focusedInput]}>
+                                                <View key={index} style={[{ width: isTablet ? '18%' : '23%' }, styles.boxView, focusedInput === part && styles.focusedInput]}>
                                                     <TextInput
                                                         value={ipAddress[part as 'part1']}
                                                         key={part}
@@ -244,7 +245,7 @@ const IPConfigScreen = ({ route }: any) => {
                                         </View>
                                     </View>
                                     <View style={{ marginBottom: 30 }}>
-                                        <CustomText fontFamily={theme.fonts.Regular} fontSize={theme.fontSize.large}>Restaurant Name</CustomText>
+                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>Restaurant Name</CustomText>
                                         <View style={[styles.boxView, { marginTop: 10 }, focusedInput === 'part5' && styles.focusedInput]}>
                                             <TextInput
                                                 onFocus={() => setFocusedInput('part5')}
@@ -264,10 +265,10 @@ const IPConfigScreen = ({ route }: any) => {
                             }
                         </View>
                         <TouchableOpacity onPress={branchSelectionView ? handleBranchSubmit : handleLoginPress} style={{ width: '100%' }}>
-                            <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={{ height: 50, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
+                            <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={{ height: isTablet ? 60 : 55, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
                                 {loader ?
                                     <ActivityIndicator color={theme.colors.white} /> :
-                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.large} color={theme.colors.white}>Proceed</CustomText>
+                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.heading} color={theme.colors.white}>Proceed</CustomText>
                                 }
                             </LinearGradient>
                         </TouchableOpacity>
@@ -275,7 +276,7 @@ const IPConfigScreen = ({ route }: any) => {
                 </ScrollView>
             </KeyboardAvoidingView>
             {(Platform.OS == 'ios' || !keyboardVisible) && <View style={styles.bottomBar}>
-                <CustomText fontSize={theme.fontSize.small}>By continuing, you agree to our</CustomText>
+                <CustomText fontSize={theme.fontSize.regular}>By continuing, you agree to our</CustomText>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Terms of Service</CustomText>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Privacy Policy</CustomText>
@@ -288,10 +289,10 @@ const IPConfigScreen = ({ route }: any) => {
 const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.background || '#f4f7f6',
     },
     image: {
-        width: theme.device.width * 0.8,
+        width: theme.device.width * 0.6,
         height: theme.device.width * 0.2,
         resizeMode: 'contain',
         alignSelf: 'center',
@@ -305,10 +306,11 @@ const createStyles = (theme: any) => StyleSheet.create({
         bottom: 10
     },
     textInput: {
-        fontSize: theme.fontSize.medium,
-        padding: 15,
+        fontSize: theme.fontSize.large,
+        padding: isTablet ? 18 : 15,
         borderRadius: 8,
-        backgroundColor: theme.colors.lightGray2
+        backgroundColor: theme.colors.lightGray2,
+        fontFamily: theme.fonts.Medium,
     },
     ipContainer: {
         flexDirection: 'row',
@@ -318,15 +320,15 @@ const createStyles = (theme: any) => StyleSheet.create({
     ipInput: {
         borderRadius: 8,
         backgroundColor: theme.colors.lightGray2,
-        padding: isTablet ? 15 : 15,
+        padding: isTablet ? 18 : 15,
         textAlign: 'center',
-        fontSize: theme.fontSize.medium,
-        fontFamily: theme.fonts.Regular,
+        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
+        fontFamily: theme.fonts.Medium,
         includeFontPadding: false,
     },
     dropdownContainer: {
         marginTop: 10,
-        width: isTablet ? '80%' : '100%',
+        width: '100%',
         borderWidth: 1,
         borderRadius: 10,
         borderColor: theme.colors.theme,
@@ -356,10 +358,21 @@ const createStyles = (theme: any) => StyleSheet.create({
         borderColor: theme.colors.theme,
     },
     centerView: {
-        paddingVertical: 30,
-        paddingHorizontal: 20,
-        width: isTablet ? '80%' : '100%',
+        paddingVertical: isTablet ? 40 : 30,
+        paddingHorizontal: isTablet ? 50 : 25,
+        width: isTablet ? '70%' : '92%',
         alignItems: 'center',
+        backgroundColor: theme.colors.white,
+        borderRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 8,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 6,
+        marginVertical: 20,
     },
     bgLogo: {
         position: 'absolute',
@@ -383,10 +396,9 @@ const createStyles = (theme: any) => StyleSheet.create({
     scrollContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal: 10,
         flexGrow: 1,
-        paddingBottom: 10,
-        paddingTop: theme.device.height * 0.08
+        paddingBottom: 40,
+        paddingTop: isTablet ? theme.device.height * 0.05 : theme.device.height * 0.02
     },
     boxView: {
         padding: 3,
@@ -397,7 +409,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     footerText: {
         textDecorationLine: 'underline',
         marginHorizontal: 5,
-        fontSize: theme.fontSize.small
+        fontSize: theme.fontSize.regular
     },
     version: {
         fontSize: theme.fontSize.extraSmall,
@@ -406,7 +418,37 @@ const createStyles = (theme: any) => StyleSheet.create({
         paddingHorizontal: 5,
         color: 'gray',
         right: 0
-    }
+    },
+    bgCircleBlue: {
+        position: 'absolute',
+        top: -100,
+        left: -100,
+        width: 400,
+        height: 400,
+        borderRadius: 200,
+        backgroundColor: '#EBF2FF',
+        opacity: 0.8,
+    },
+    bgCircleYellow: {
+        position: 'absolute',
+        bottom: -50,
+        right: -50,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        backgroundColor: '#FEF7EB',
+        opacity: 0.8,
+    },
+    bgCircleMint: {
+        position: 'absolute',
+        bottom: theme.device.height * 0.15,
+        left: -75,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        backgroundColor: '#EBFBF5',
+        opacity: 0.8
+    },
 });
 
 export default IPConfigScreen;

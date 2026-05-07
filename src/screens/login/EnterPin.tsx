@@ -170,14 +170,14 @@ const EnterPinScreen = ({ route }: any) => {
                         style={{ width: isTablet ? '50%' : '60%', height: '80%' }}
                     />
                 </View>
-                <View style={{ flex: 0.2, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flex: 0.25, alignItems: 'center', justifyContent: 'center' }}>
                     <Image
                         source={Passlock}
                         style={{ width: '40%', marginTop: 0, resizeMode: 'contain', }}
                     />
                 </View>
                 <View style={{ flex: isTablet ? 0.08 : Platform.OS === 'ios' ? 0.18 : 0.1, alignItems: 'center', justifyContent: 'center', }}>
-                    <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.medium} style={{ padding: 10 }}>Please Enter Your Passcode</CustomText>
+                    <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large} style={{ padding: 10 }}>Please Enter Your Passcode</CustomText>
                     <Animated.View style={[styles.circleContainer, shakeStyle]}>
                         {[...Array(6)].map((_, index) => (
                             <PinDot
@@ -246,13 +246,13 @@ const EnterPinScreen = ({ route }: any) => {
                 <View style={[GlobalStyles.justifiedRow, { flex: 0.07, marginTop: 10, marginHorizontal: 20 }]}>
                     <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', }}
                         onPress={() => setIsPasscodeVisible(prev => !prev)}>
-                        <CustomText style={{ fontSize: theme.fontSize.medium }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
+                        <CustomText style={{ fontSize: theme.fontSize.large }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
                     </TouchableOpacity>
                     <TouchableOpacity style={[{ width: isTablet ? '30%' : '40%', borderRadius: 10 }]} onPress={handleSubmitPress} disabled={loader}>
                         <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={[styles.button]}>
                             {loader ?
                                 <ActivityIndicator color={theme.colors.white} /> :
-                                <CustomText style={{ fontSize: theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
+                                <CustomText style={{ fontSize: theme.fontSize.heading }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
                             }
                         </LinearGradient>
                     </TouchableOpacity>

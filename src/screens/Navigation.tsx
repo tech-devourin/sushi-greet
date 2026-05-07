@@ -30,7 +30,7 @@ const NavigationRoutes = () => {
                     <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="IPconfig" component={IPConfigScreen} options={{ headerShown: false, animation: 'fade' }} />
                     <Stack.Screen name="EnterPin" component={EnterPinScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="KDSDashboard" component={Dashboard} options={{ headerShown: false, animation: 'fade' }} />
+                    <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false, animation: 'fade' }} />
                 </Stack.Navigator>
             </NavigationContainer>
             {isLoading &&

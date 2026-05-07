@@ -60,7 +60,7 @@ export async function resetAndNavigateToModule(screenName: string) {
             CommonActions.reset({
                 index: 0,
                 routes: [{
-                    name: 'DrawerNavigation', state: { index: 0, routes: [{ name: screenName }] },
+                    name: 'Dashboard', state: { index: 0, routes: [{ name: screenName }] },
                 },
                 ],
             })
