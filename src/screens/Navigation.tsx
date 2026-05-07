@@ -10,6 +10,7 @@ import { useTheme } from 'src/context/ThemeContext';
 import { navigationRef } from 'src/utils/NavigationUtil';
 import { useGlobalStyles } from '../../src/styles/Styles';
 import Dashboard from './greet/Dashboard';
+import TableLayout from './greet/TableLayout';
 import EnterPinScreen from './login/EnterPin';
 import IPConfigScreen from './login/IPConfig';
 import SplashScreen from './login/Splash';
@@ -30,7 +31,8 @@ const NavigationRoutes = () => {
                     <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="IPconfig" component={IPConfigScreen} options={{ headerShown: false, animation: 'fade' }} />
                     <Stack.Screen name="EnterPin" component={EnterPinScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false, animation: 'fade' }} />
+                    <Stack.Screen name="Dashboard" component={Dashboard} options={{ animation: 'fade' }} />
+                    <Stack.Screen name="Create Reservation" component={TableLayout} options={{ animation: 'fade' }} />
                 </Stack.Navigator>
             </NavigationContainer>
             {isLoading &&

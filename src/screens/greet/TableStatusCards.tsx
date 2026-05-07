@@ -4,14 +4,16 @@ import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import GreetTablesModal from '@components/modals/TablesModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
 import { Feather, Octicons } from '@expo/vector-icons';
-import { useAppDispatch } from '@redux/Hooks';
-import { setIsLoading } from '@redux/States';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppDispatch, useAppSelector } from '@redux/Hooks';
+import { selectUserData, setIsLoading, setUserData } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
 import { makeAPIRequest } from '@utils/Helper';
+import { resetAndNavigate } from '@utils/NavigationUtil';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
 import * as Haptics from 'expo-haptics';
-import { FC, useRef, useState } from 'react';
+import { FC, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useTheme } from 'src/context/ThemeContext';
@@ -20,16 +22,17 @@ type Props = {
     refreshHandler: () => Promise<void>,
     tableStatus: TypeTableStatus,
     totalPax: number,
-    totalReservations: number
+    totalReservations: number,
+    modelRef: React.RefObject<ModalRefType | null>
 }
 
-const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, totalReservations }) => {
+const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, totalReservations, modelRef }) => {
     const dispatch = useAppDispatch();
     const { apiBaseUrl } = useEnvironment();
     const { theme } = useTheme();
     const GlobalStyles = useGlobalStyles();
     const styles = createStyles(theme);
-    const modelRef = useRef<ModalRefType | null>(null);
+    const userData = useAppSelector(selectUserData);
     const totalTables = tableStatus.bp + tableStatus.f + tableStatus.ot;
 
     const [selectedItem, setSelectedItem] = useState<string>('');
@@ -68,19 +71,28 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
         dispatch(setIsLoading({ isLoading: false }));
     };
 
+    const logoutStaff = async (ipPage?: boolean) => {
+        await resetAndNavigate(ipPage ? 'IPconfig' : 'EnterPin', userData?.userId);
+        dispatch(setUserData({ userData: {} }));
+        await AsyncStorage.multiRemove(["loggedIn", "selectedModule", ...(ipPage ? ['initialSetup'] : [])]);
+    };
+
     const renderContent = (key: string | null) => {
+        console.log('uhej')
         switch (key) {
             case 'tables':
                 return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={async (item, tableId) => { modelRef.current?.replace('free'); setSelectedTable(item); }} />
             case 'free':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={`Are you sure, you want to free table ${selectedTable?.n}?`} heading={`Free Table - ${selectedTable?.n}`} onConfirm={freeTableHandler} />
+            case 'logout':
+                return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
             default:
                 return null;
         }
     };
 
     return (
-        <View>
+        <View style={{ marginTop: 10 }}>
             <ModalAsBottomSheet ref={modelRef} renderContent={renderContent} showCloseBtn />
             <View style={[GlobalStyles.justifiedRow]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>

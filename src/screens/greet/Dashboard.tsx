@@ -1,5 +1,5 @@
 import CustomText from '@components/CustomText';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '@redux/Hooks';
 import { selectBranchId } from '@redux/States';
@@ -8,13 +8,12 @@ import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constan
 import { makeAPIRequest } from '@utils/Helper';
 import { navigate } from '@utils/NavigationUtil';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
-import moment from 'moment';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from "src/context/ThemeContext";
 import TableStatusCards from './TableStatusCards';
 
-const GreetDashboard = () => {
+const GreetDashboard = ({ navigation }: any) => {
     const { apiBaseUrl } = useEnvironment();
     const { theme } = useTheme();
     const GlobalStyles = useGlobalStyles();
@@ -23,8 +22,6 @@ const GreetDashboard = () => {
 
     const [tableStatus, setTableStatus] = useState<TypeTableStatus>({ f: 0, bp: 0, ot: 0 });
     const [reservationData, setReservationData] = useState<{ [key: string]: any }[]>([]);
-    const [loader, setLoader] = useState<boolean>(false);
-    const [fromToDates, setFromToDates] = useState({ from: moment().format("YYYY-MM-DD"), to: "" });
     const modelRef = useRef<ModalRefType | null>(null);
     const totalPax = reservationData.length > 0 ? reservationData.reduce((sum, item) => sum + (item.p || 0) + (item.noOfKids || 0), 0) : 0;
 
@@ -49,30 +46,34 @@ const GreetDashboard = () => {
             return () => clearInterval(intervalId);
         }, [branchId]));
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerTitleAlign: 'left',
+            headerShadowVisible: false,
+            headerTintColor: '#000',
+            headerBackTitle: '',
+            headerTitleStyle: { fontFamily: theme.fonts.Medium, includeFontPadding: false },
+            headerBackButtonDisplayMode: 'minimal',
+            headerTitle: "Sushi Plus",
+            headerRight: () => (
+                <View style={[GlobalStyles.justifiedRow]}>
+                    <TouchableOpacity onPress={() => { navigate('Create Reservation') }} style={{ marginRight: 20, padding: 5 }}>
+                        <Feather name="plus" size={isTablet ? 30 : 25} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => { modelRef.current?.open('logout') }} style={{ marginRight: 10, padding: 5 }}>
+                        <Feather name="log-out" size={isTablet ? 30 : 25} />
+                    </TouchableOpacity>
+                </View>
+            ),
+        })
+    }, [navigation])
+
     return (
         <View style={styles.container}>
-            <TableStatusCards refreshHandler={refreshHandler} tableStatus={tableStatus} totalPax={totalPax} totalReservations={reservationData?.length} />
-            <View style={[GlobalStyles.justifiedRow, { marginVertical: 15 }]}>
-                <TouchableOpacity style={styles.buttonView} onPress={() => { navigate('Reports') }}>
-                    <CustomText style={styles.btnText}>Reports</CustomText>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.buttonView]} onPress={() => { navigate('Reservations') }}>
-                    <CustomText style={styles.btnText}>Reservations</CustomText>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonView} onPress={() => { navigate('Reservation History') }}>
-                    <CustomText style={styles.btnText}>History</CustomText>
-                </TouchableOpacity>
-            </View>
+            <TableStatusCards refreshHandler={refreshHandler} tableStatus={tableStatus} totalPax={totalPax} totalReservations={reservationData?.length} modelRef={modelRef} />
             <View style={styles.queueView}>
                 <View style={[GlobalStyles.justifiedRow, { marginBottom: 10 }]}>
                     <CustomText style={styles.statusText}>Reservations</CustomText>
-                    <TouchableOpacity style={[styles.dateTypeView, GlobalStyles.justifiedRow, styles.dateView]} onPress={() => { modelRef.current?.open('date') }}>
-                        <Ionicons name="calendar-outline" size={isTablet ? 25 : 20} color={theme.colors.default} />
-                        <View style={[GlobalStyles.justifiedRow, {}]}>
-                            <CustomText style={{ marginLeft: isTablet ? 10 : 5, fontSize: theme.fontSize.small }} numberOfLines={1}>{moment(fromToDates?.from, "YYYY-MM-DD").format("DD MMM YYYY")} - {fromToDates.to ? moment(fromToDates?.to, "YYYY-MM-DD").format("DD MMM YYYY") : 'Onwards'}</CustomText>
-                        </View>
-                        <Ionicons name={"chevron-down"} size={15} color={'gray'} />
-                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -106,7 +107,8 @@ const createStyles = (theme: any) => StyleSheet.create({
         borderTopWidth: 0.75,
         borderStyle: Platform.OS == "ios" ? "solid" : "dashed",
         borderTopColor: "lightgray",
-        paddingTop: 15
+        paddingTop: 25,
+        marginTop: 25
     },
     text2: {
         fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
