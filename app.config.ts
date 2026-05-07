@@ -81,7 +81,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           "./assets/fonts/Poppins-SemiBold.ttf",
         ]
       }
-    ],
+    ]
   ],
   "experiments": {
     "typedRoutes": true,

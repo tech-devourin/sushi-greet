@@ -110,3 +110,7 @@ export const checkBranchValidity = async (apiBaseUrl: string, branchId: any) => 
     return true;
 };
 
+export const sleep = (milliseconds: number) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+

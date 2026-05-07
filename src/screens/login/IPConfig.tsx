@@ -26,7 +26,6 @@ import { Dropdown } from 'react-native-element-dropdown';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { Colors } from 'src/styles/Colors';
 import { useAppDispatch } from '../../redux/Hooks';
 import { BASE_URL, isTablet, OTA_VERSION, useEnvironment } from '../../utils/Constants';
 
@@ -77,16 +76,19 @@ const IPConfigScreen = ({ route }: any) => {
     const buildBaseUrl = (ipConfig: string, dbName: string) => `http://${ipConfig}:8080/${BASE_URL}${dbName.trim().toLowerCase()}/`;
 
     const saveSetupData = async (ipConfiguration: string, dbName: string, taxes: any) => {
-        await AsyncStorage.setMany({
-            "initialSetup": JSON.stringify({ ipConfiguration, dbName }),
-            "taxes": JSON.stringify(taxes),
-        });
+        await AsyncStorage.multiSet([
+            ["initialSetup", JSON.stringify({ ipConfiguration, dbName })],
+            ["taxes", JSON.stringify(taxes)],
+        ]);
         dispatch(setdbName({ dbName }));
         dispatch(setipAddress({ ipAddress: ipConfiguration }));
     };
 
     const saveBranchData = async (branchId: any, branchName: string) => {
-        await AsyncStorage.setMany({ "branchId": branchId, "branchName": JSON.stringify(branchName) });
+        await AsyncStorage.multiSet([
+            ["branchId", branchId],
+            ["branchName", JSON.stringify(branchName)],
+        ]);
         dispatch(setBranchId({ branchId }));
     };
 
@@ -205,7 +207,7 @@ const IPConfigScreen = ({ route }: any) => {
                                             onBlur={() => { setDropdownSelection(false) }}
                                             onChange={item => handleBranchSelection(item.value)}
                                             renderRightIcon={() => (
-                                                <Ionicons name="chevron-down" color={"#000"} size={isTablet ? 25 : 20} style={{ transform: [{ rotate: dropdownSelection ? '180deg' : '0deg' }] }} />
+                                                <Ionicons name="chevron-down" color={theme.colors.text} size={isTablet ? 25 : 20} style={{ transform: [{ rotate: dropdownSelection ? '180deg' : '0deg' }] }} />
                                             )}
                                             labelField={'label'}
                                             valueField={'label'} />
@@ -264,8 +266,8 @@ const IPConfigScreen = ({ route }: any) => {
                         <TouchableOpacity onPress={branchSelectionView ? handleBranchSubmit : handleLoginPress} style={{ width: '100%' }}>
                             <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={{ height: 50, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
                                 {loader ?
-                                    <ActivityIndicator color={'#fff'} /> :
-                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.large} color='#fff'>Proceed</CustomText>
+                                    <ActivityIndicator color={theme.colors.white} /> :
+                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.large} color={theme.colors.white}>Proceed</CustomText>
                                 }
                             </LinearGradient>
                         </TouchableOpacity>
@@ -282,8 +284,6 @@ const IPConfigScreen = ({ route }: any) => {
         </SafeAreaView>
     );
 };
-
-export default IPConfigScreen;
 
 const createStyles = (theme: any) => StyleSheet.create({
     container: {
@@ -339,14 +339,14 @@ const createStyles = (theme: any) => StyleSheet.create({
         backgroundColor: theme.colors.lightGray2
     },
     dropdownText: {
-        color: '#000',
+        color: theme.colors.text,
         padding: 10,
         fontFamily: theme.fonts.Regular,
         includeFontPadding: false
     },
     shadow: {
-        backgroundColor: '#fff',
-        shadowColor: "#000",
+        backgroundColor: theme.colors.white,
+        shadowColor: theme.colors.text,
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
@@ -374,7 +374,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         marginTop: 10,
         marginHorizontal: 10,
         padding: 5,
-        backgroundColor: Colors.background,
+        backgroundColor: theme.colors.background,
         justifyContent: 'center',
         borderRadius: 40,
         alignSelf: 'flex-start',
@@ -392,7 +392,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         padding: 3,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: '#fff'
+        borderColor: theme.colors.white
     },
     footerText: {
         textDecorationLine: 'underline',
@@ -408,3 +408,6 @@ const createStyles = (theme: any) => StyleSheet.create({
         right: 0
     }
 });
+
+export default IPConfigScreen;
+

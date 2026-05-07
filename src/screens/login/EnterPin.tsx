@@ -39,7 +39,6 @@ import { makeAPIRequestWithErrorHandling } from '../../utils/Helper';
 
 const PinDot = memo(({ filled, value, isVisible }: { filled: boolean; value: string | undefined; isVisible: boolean }) => {
     const { theme } = useTheme();
-    const GlobalStyles = useGlobalStyles();
     const scale = useSharedValue(1);
     const filledStatus = useSharedValue(filled ? 1 : 0);
 
@@ -65,13 +64,13 @@ const PinDot = memo(({ filled, value, isVisible }: { filled: boolean; value: str
     }));
 
     const dotAnimatedStyle = useAnimatedStyle(() => ({
-        backgroundColor: filledStatus.value === 1 ? theme.colors.default : 'lightgray',
+        backgroundColor: filledStatus.value === 1 ? theme.colors.default : theme.colors.light_gray,
     }));
 
     const styles = createStyles(theme);
 
     return (
-        <Animated.View style={[styles.dotCircle, { backgroundColor: 'lightgray' }, animatedScaleStyle]}>
+        <Animated.View style={[styles.dotCircle, { backgroundColor: theme.colors.light_gray }, animatedScaleStyle]}>
             {isVisible ? (
                 <CustomText style={styles.circleText}>{value || ''}</CustomText>
             ) : (
@@ -227,7 +226,7 @@ const EnterPinScreen = ({ route }: any) => {
 
                     <View style={[styles.row, { width: isTablet ? '50%' : '70%' }]}>
                         <View
-                            style={[styles.numberButton, { borderColor: '#fff', backgroundColor: '#fff' }]}>
+                            style={[styles.numberButton, { borderColor: 'transparent', backgroundColor: 'transparent' }]}>
                             <CustomText fontFamily={theme.fonts.Medium}></CustomText>
                         </View>
                         <TouchableOpacity
@@ -252,14 +251,14 @@ const EnterPinScreen = ({ route }: any) => {
                     <TouchableOpacity style={[{ width: isTablet ? '30%' : '40%', borderRadius: 10 }]} onPress={handleSubmitPress} disabled={loader}>
                         <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={[styles.button]}>
                             {loader ?
-                                <ActivityIndicator color={"#fff"} /> :
-                                <CustomText style={{ fontSize: theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color='#fff'>Submit</CustomText>
+                                <ActivityIndicator color={theme.colors.white} /> :
+                                <CustomText style={{ fontSize: theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
                             }
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
                 <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center', }}>
-                    <TouchableOpacity onPress={() => { modelRef.current?.open('alert') }} style={{ borderBottomWidth: 1, }}>
+                    <TouchableOpacity onPress={() => { modelRef.current?.open('alert') }} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.text }}>
                         <CustomText>Re-Register Device</CustomText>
                     </TouchableOpacity>
                 </View>
@@ -268,12 +267,10 @@ const EnterPinScreen = ({ route }: any) => {
     );
 };
 
-export default EnterPinScreen;
-
 const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.white,
     },
     innerContainer: {
         flex: isTablet ? 0.5 : Platform.OS === 'ios' ? 0.55 : 0.5,
@@ -292,7 +289,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
         fontSize: 18,
-        color: '#fff'
+        color: theme.colors.white
     },
     row: {
         flexDirection: 'row',
@@ -312,7 +309,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     numberText: {
         fontFamily: theme.fonts.Medium,
-        color: '#000',
+        color: theme.colors.text,
         fontSize: isTablet ? theme.fontSize.heading : theme.fontSize.large,
     },
     circleContainer: {
@@ -327,10 +324,10 @@ const createStyles = (theme: any) => StyleSheet.create({
         height: 20,
         borderRadius: 25,
         borderWidth: 1,
-        borderColor: '#000',
+        borderColor: theme.colors.text,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.white,
     },
     dotCircle: {
         borderRadius: 25,
@@ -341,7 +338,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         height: 20
     },
     circleText: {
-        color: '#000',
+        color: theme.colors.text,
         fontFamily: theme.fonts.Medium
     },
     deleteButton: {
@@ -360,6 +357,9 @@ const createStyles = (theme: any) => StyleSheet.create({
         justifyContent: 'center',
     },
     buttonText: {
-        color: '#FFF',
+        color: theme.colors.white,
     },
 });
+
+export default EnterPinScreen;
+

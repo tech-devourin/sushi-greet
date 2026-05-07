@@ -7,18 +7,18 @@ import { setBranchId, setdbName, setipAddress, setUserData } from "@redux/States
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
-import { FONTS } from "src/styles/Fonts";
 import { replace, resetAndNavigate, resetAndNavigateToModule } from "src/utils/NavigationUtil";
 
 import { useTheme } from "src/context/ThemeContext";
 
 const SplashScreen = () => {
     const { theme } = useTheme();
+    const styles = createStyles(theme);
     const dispatch = useAppDispatch();
     const { callInitialSetUpAPIAsync, loading } = useInitialDataFetch(true);
     const [storedData, setStoredData] = useState<{ [key: string]: any } | null>(null);
     const [minSplashTimeDone, setMinSplashTimeDone] = useState(false);
-    const keys = ["initialSetup", "branchId", "loggedIn", "taxes", "selectedModule", "selectedReportsColumns", "jwtToken", "printerWidth"];
+    const keys = ["initialSetup", "branchId", "loggedIn"];
 
     const rotation = useSharedValue(360);
     const scale = useSharedValue(0);
@@ -27,7 +27,7 @@ const SplashScreen = () => {
     const textTranslateY = useSharedValue(20);
 
     const fetchStoredData = async () => {
-        const storeValues = await AsyncStorage.getMany(keys);
+        const storeValues = await AsyncStorage.multiGet(keys);
         const data = Object.fromEntries(
             storeValues.map(([key, value]) => [key, value ? JSON.parse(value) : null])
         );
@@ -54,7 +54,7 @@ const SplashScreen = () => {
         if ((data.initialSetup && !data.loggedIn)) {
             replace("EnterPin");
         } else if (data.initialSetup && data.loggedIn) {
-            resetAndNavigateToModule(`${data.selectedModule}Navigation`); // need to decide which module to navigate to
+            resetAndNavigateToModule('Dashboard');
         } else {
             resetAndNavigate('IPconfig');
         }
@@ -104,8 +104,6 @@ const SplashScreen = () => {
         opacity: textOpacity.value,
         transform: [{ translateY: textTranslateY.value }],
     }));
-
-    const styles = createStyles(theme);
 
     return (
         <View style={styles.container}>
