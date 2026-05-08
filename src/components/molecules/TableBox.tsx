@@ -12,14 +12,27 @@ interface TableBoxProps {
     table: any;
     onPress?: (table: any) => void;
     style?: ViewStyle;
-    screenType: 'reservation' | 'status'
+    screenType: 'reservation' | 'status';
+    refreshTime?: number;
 }
 
-const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType }) => {
+const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, refreshTime }) => {
     const { theme } = useTheme();
     const styles = createStyles(theme);
 
     const type = table.st === 'PRINT_BILL' ? 'bp' : !!table.ro ? 'ot' : 'f';
+
+    const getTimeSpent = (startTime: string) => {
+        if (!startTime) return "";
+        const now = moment();
+        const start = moment(startTime);
+        const duration = moment.duration(now.diff(start));
+        const hours = Math.floor(duration.asHours());
+        const minutes = duration.minutes();
+        return hours > 0 ? `${hours}hr ${minutes}min` : `${minutes}min`;
+    };
+
+    const timeSpent = (type === 'bp' || type === 'ot') ? getTimeSpent(table.ro) : "";
 
     const handlePress = () => {
         if (screenType === 'reservation' && type !== 'f') {
@@ -30,19 +43,6 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType }
             return;
         }
         onPress && onPress(table);
-    };
-
-    const getTimeSpent = (startTime: string) => {
-        if (!startTime) return "";
-        const now = moment();
-        const start = moment(startTime);
-        const duration = moment.duration(now.diff(start));
-        const hours = Math.floor(duration.asHours());
-        const minutes = duration.minutes();
-        if (hours > 0) {
-            return `${hours}hr ${minutes}min`;
-        }
-        return `${minutes}min`;
     };
 
     return (
@@ -62,7 +62,7 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType }
                 <View style={styles.timeContainer}>
                     <Octicons name="clock" size={isTablet ? 15 : 12} color="black" style={{ marginRight: 2 }} />
                     <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small} fontFamily={theme.fonts.Medium}>
-                        {getTimeSpent(table.ro)}
+                        {timeSpent}
                     </CustomText>
                 </View>
             )}

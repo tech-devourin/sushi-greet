@@ -37,12 +37,14 @@ const TableLayout = ({ navigation }: any) => {
     const modelRef = useRef<ModalRefType | null>(null);
     const [allTables, setAllTables] = useState<{ [key: string]: any }[]>([]);
     const [selectedItem, setSelectedItem] = useState<{ [key: string]: any } | null>(null);
+    const [refreshTime, setRefreshTime] = useState(Date.now());
 
     const getTables = async () => {
         dispatch(setIsLoading({ isLoading: true }));
         const tables = await getTablesInfo(apiBaseUrl, branchId);
         if (tables) {
             setAllTables(tables);
+            setRefreshTime(Date.now());
         }
         dispatch(setIsLoading({ isLoading: false }));
     };
@@ -51,6 +53,7 @@ const TableLayout = ({ navigation }: any) => {
         const tables = await getTablesInfo(apiBaseUrl, branchId);
         if (tables) {
             setAllTables(tables);
+            setRefreshTime(Date.now());
         }
     };
 
@@ -82,7 +85,12 @@ const TableLayout = ({ navigation }: any) => {
         if (!item.table) {
             return <View style={styles.emptyCell} />;
         }
-        return <TableBox table={item.table} onPress={() => { modelRef.current?.open('paxSet'); setSelectedItem(item.table) }} screenType='reservation' />;
+        return <TableBox
+            table={item.table}
+            onPress={() => { modelRef.current?.open('paxSet'); setSelectedItem(item.table) }}
+            screenType='reservation'
+            refreshTime={refreshTime}
+        />;
     };
 
     const createReservation = async (pax: number) => {
@@ -164,6 +172,7 @@ const TableLayout = ({ navigation }: any) => {
 
                 <FlatList
                     data={gridData.data}
+                    extraData={refreshTime}
                     keyExtractor={(item) => item.id}
                     numColumns={gridData.cols}
                     renderItem={renderTable}

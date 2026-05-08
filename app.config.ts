@@ -3,7 +3,6 @@ import { ConfigContext, ExpoConfig } from "expo/config";
 const IS_DEV = process.env.APP_VARIANT == "development";
 const IS_PREVIEW = process.env.APP_VARIANT == "preview";
 
-//IMG KDS FOR SUSHI
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
     return 'com.relfor.devourinsushigreet.dev';
@@ -86,5 +85,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   "experiments": {
     "typedRoutes": true,
     "reactCompiler": true
+  },
+  "runtimeVersion": {
+    "policy": "appVersion"
+  },
+  "updates": {
+    "url": "https://u.expo.dev/b0409dee-8ff8-4cbb-9411-853cf3728cfb"
+  },
+  "owner": "relfor-labs-private-limited",
+  "extra": {
+    "eas": {
+      "projectId": "b0409dee-8ff8-4cbb-9411-853cf3728cfb"
+    }
   }
 });
