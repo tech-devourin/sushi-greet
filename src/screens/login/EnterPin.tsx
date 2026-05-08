@@ -246,13 +246,13 @@ const EnterPinScreen = ({ route }: any) => {
                 <View style={[GlobalStyles.justifiedRow, { flex: 0.07, marginTop: 10, marginHorizontal: 20 }]}>
                     <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', }}
                         onPress={() => setIsPasscodeVisible(prev => !prev)}>
-                        <CustomText style={{ fontSize: theme.fontSize.large }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
+                        <CustomText style={{ fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
                     </TouchableOpacity>
                     <TouchableOpacity style={[{ width: isTablet ? '30%' : '40%', borderRadius: 10 }]} onPress={handleSubmitPress} disabled={loader}>
                         <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={[styles.button]}>
                             {loader ?
                                 <ActivityIndicator color={theme.colors.white} /> :
-                                <CustomText style={{ fontSize: theme.fontSize.heading }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
+                                <CustomText style={{ fontSize: isTablet ? theme.fontSize.heading : theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
                             }
                         </LinearGradient>
                     </TouchableOpacity>

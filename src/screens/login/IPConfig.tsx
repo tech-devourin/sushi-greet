@@ -194,7 +194,7 @@ const IPConfigScreen = ({ route }: any) => {
                         <View style={{ flex: 1, width: '100%', marginVertical: 25 }}>
                             {branchSelectionView ?
                                 <Animated.View style={{ marginTop: 30, marginBottom: '40%', height: '100%' }} entering={FadeInRight.duration(500)}>
-                                    <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>Select Restaurant Branch</CustomText>
+                                    <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>Select Restaurant Branch</CustomText>
                                     <View style={[styles.dropdownContainer]}>
                                         <Dropdown
                                             activeColor={theme.colors.theme_light}
@@ -217,7 +217,7 @@ const IPConfigScreen = ({ route }: any) => {
                                 :
                                 <View>
                                     <View style={{ marginVertical: 30 }}>
-                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>IP Configuration</CustomText>
+                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>IP Configuration</CustomText>
                                         <View style={styles.ipContainer}>
                                             {["part1", "part2", "part3", "part4"].map((part: string, index: number) => (
                                                 <View key={index} style={[{ width: isTablet ? '18%' : '23%' }, styles.boxView, focusedInput === part && styles.focusedInput]}>
@@ -245,7 +245,7 @@ const IPConfigScreen = ({ route }: any) => {
                                         </View>
                                     </View>
                                     <View style={{ marginBottom: 30 }}>
-                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large}>Restaurant Name</CustomText>
+                                        <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>Restaurant Name</CustomText>
                                         <View style={[styles.boxView, { marginTop: 10 }, focusedInput === 'part5' && styles.focusedInput]}>
                                             <TextInput
                                                 onFocus={() => setFocusedInput('part5')}
@@ -268,7 +268,7 @@ const IPConfigScreen = ({ route }: any) => {
                             <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={{ height: isTablet ? 60 : 55, alignItems: 'center', borderRadius: 10, justifyContent: 'center' }}>
                                 {loader ?
                                     <ActivityIndicator color={theme.colors.white} /> :
-                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.heading} color={theme.colors.white}>Proceed</CustomText>
+                                    <CustomText fontFamily={theme.fonts.SemiBold} fontSize={isTablet ? theme.fontSize.heading : theme.fontSize.large} color={theme.colors.white}>Proceed</CustomText>
                                 }
                             </LinearGradient>
                         </TouchableOpacity>
@@ -276,7 +276,7 @@ const IPConfigScreen = ({ route }: any) => {
                 </ScrollView>
             </KeyboardAvoidingView>
             {(Platform.OS == 'ios' || !keyboardVisible) && <View style={styles.bottomBar}>
-                <CustomText fontSize={theme.fontSize.regular}>By continuing, you agree to our</CustomText>
+                <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small}>By continuing, you agree to our</CustomText>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Terms of Service</CustomText>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Privacy Policy</CustomText>
@@ -306,7 +306,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         bottom: 10
     },
     textInput: {
-        fontSize: theme.fontSize.large,
+        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
         padding: isTablet ? 18 : 15,
         borderRadius: 8,
         backgroundColor: theme.colors.lightGray2,
@@ -409,7 +409,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     footerText: {
         textDecorationLine: 'underline',
         marginHorizontal: 5,
-        fontSize: theme.fontSize.regular
+        fontSize: isTablet ? theme.fontSize.regular : theme.fontSize.small
     },
     version: {
         fontSize: theme.fontSize.extraSmall,
@@ -423,8 +423,8 @@ const createStyles = (theme: any) => StyleSheet.create({
         position: 'absolute',
         top: -100,
         left: -100,
-        width: 400,
-        height: 400,
+        width: isTablet ? 400 : 250,
+        height: isTablet ? 400 : 250,
         borderRadius: 200,
         backgroundColor: '#EBF2FF',
         opacity: 0.8,
@@ -433,8 +433,8 @@ const createStyles = (theme: any) => StyleSheet.create({
         position: 'absolute',
         bottom: -50,
         right: -50,
-        width: 300,
-        height: 300,
+        width: isTablet ? 300 : 200,
+        height: isTablet ? 300 : 200,
         borderRadius: 150,
         backgroundColor: '#FEF7EB',
         opacity: 0.8,
@@ -443,8 +443,8 @@ const createStyles = (theme: any) => StyleSheet.create({
         position: 'absolute',
         bottom: theme.device.height * 0.15,
         left: -75,
-        width: 300,
-        height: 300,
+        width: isTablet ? 300 : 200,
+        height: isTablet ? 300 : 200,
         borderRadius: 150,
         backgroundColor: '#EBFBF5',
         opacity: 0.8
