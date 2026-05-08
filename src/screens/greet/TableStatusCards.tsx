@@ -4,12 +4,10 @@ import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import GreetTablesModal from '@components/modals/TablesModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
 import { Feather, Octicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '@redux/Hooks';
-import { selectUserData, setIsLoading, setUserData } from '@redux/States';
+import { selectUserData, setIsLoading } from '@redux/States';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
-import { makeAPIRequest } from '@utils/Helper';
-import { resetAndNavigate } from '@utils/NavigationUtil';
+import { logoutStaff, makeAPIRequest } from '@utils/Helper';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
 import * as Haptics from 'expo-haptics';
 import { FC, useState } from 'react';
@@ -79,11 +77,6 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
         dispatch(setIsLoading({ isLoading: false }));
     };
 
-    const logoutStaff = async (ipPage?: boolean) => {
-        await resetAndNavigate(ipPage ? 'IPconfig' : 'EnterPin', userData?.userId);
-        dispatch(setUserData({ userData: {} }));
-        await AsyncStorage.multiRemove(["loggedIn", "selectedModule", ...(ipPage ? ['initialSetup'] : [])]);
-    };
 
     const renderContent = (key: string | null) => {
         switch (key) {

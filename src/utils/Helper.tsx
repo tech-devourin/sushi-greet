@@ -1,6 +1,9 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setUserData } from "@redux/States";
 import { store } from "@redux/Store";
 import { Alert, Linking } from "react-native";
 import Toast from "react-native-toast-message";
+import { resetAndNavigate } from "./NavigationUtil";
 
 const getHeaders = (options: RequestInit = {}) => {
     const state = store.getState();
@@ -116,5 +119,13 @@ export const getTablesInfo = async (apiBaseUrl: string, branchId: number) => {
 
 export const sleep = (milliseconds: number) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
+export const logoutStaff = async (ipPage?: boolean) => {
+    const states = store.getState();
+    const userData = states.States.userData;
+    await resetAndNavigate(ipPage ? 'IPconfig' : 'EnterPin', userData?.userId);
+    store.dispatch(setUserData({ userData: {} }));
+    await AsyncStorage.multiRemove(["loggedIn", "selectedModule", ...(ipPage ? ['initialSetup'] : [])]);
 };
 

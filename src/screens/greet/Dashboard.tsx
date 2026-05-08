@@ -2,8 +2,8 @@ import CustomText from '@components/CustomText';
 import Header from '@components/molecules/Header';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useAppSelector } from '@redux/Hooks';
-import { selectBranchId } from '@redux/States';
+import { useAppDispatch, useAppSelector } from '@redux/Hooks';
+import { selectBranchId, setIsLoading } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
 import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
 import { makeAPIRequest } from '@utils/Helper';
@@ -16,6 +16,7 @@ import TableStatusCards from './TableStatusCards';
 
 const GreetDashboard = ({ navigation }: any) => {
     const { apiBaseUrl } = useEnvironment();
+    const dispatch = useAppDispatch();
     const { theme } = useTheme();
     const GlobalStyles = useGlobalStyles();
     const styles = createStyles(theme);
@@ -26,28 +27,28 @@ const GreetDashboard = ({ navigation }: any) => {
     const modelRef = useRef<ModalRefType | null>(null);
     const totalPax = reservationData.length > 0 ? reservationData.reduce((sum, item) => sum + (item.p || 0) + (item.noOfKids || 0), 0) : 0;
 
-    const getTableStatus = async () => {
+    const getTableStatus = async (firstLoad = false) => {
+        firstLoad && dispatch(setIsLoading({ isLoading: true }));
         const url = `${apiBaseUrl}tablestatebybranch?br_id=${branchId}`;
         const response = await makeAPIRequest(url, null, "GET");
         if (response) {
             setTableStatus(response);
         }
+        firstLoad && dispatch(setIsLoading({ isLoading: false }));
     };
 
     const refreshHandler = async () => {
-        await getTableStatus();
+        await getTableStatus(false);
     };
 
     useFocusEffect(
         useCallback(() => {
-            getTableStatus();
+            getTableStatus(true);
             const intervalId = setInterval(async () => {
-                getTableStatus();
+                getTableStatus(false);
             }, TABLE_REFRESH_INTERVAL);
             return () => clearInterval(intervalId);
         }, [branchId]));
-
-
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>

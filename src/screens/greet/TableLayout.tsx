@@ -1,14 +1,20 @@
 import CustomText from '@components/CustomText';
+import AlertModal from '@components/modals/AlertModal';
+import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
 import Header from '@components/molecules/Header';
+import { Feather, Octicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '@redux/Hooks';
 import { selectBranchId, setIsLoading } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
-import { isTablet, useEnvironment } from '@utils/Constants';
-import { getTablesInfo } from '@utils/Helper';
+import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
+import { getTablesInfo, logoutStaff } from '@utils/Helper';
+import { replace } from '@utils/NavigationUtil';
 import { ModalRefType } from '@utils/Types';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import moment from 'moment';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from 'src/context/ThemeContext';
 
 const GRID_SIZE: any = {
@@ -44,13 +50,17 @@ const TableLayout = ({ navigation }: any) => {
         }
     };
 
-    useEffect(() => {
-        getTables();
-    }, [branchId]);
+    useFocusEffect(
+        useCallback(() => {
+            getTables();
+            const intervalId = setInterval(async () => {
+                refreshHandler();
+            }, TABLE_REFRESH_INTERVAL);
+            return () => clearInterval(intervalId);
+        }, [branchId]));
 
     const gridData = useMemo(() => {
-        const [cols, rows] = GRID_SIZE[branchId] || [4, 10];
-        const totalCells = cols * rows;
+        const [cols, rows] = GRID_SIZE[branchId];
         const tableMap = new Map();
         allTables.forEach(table => {
             if (table.layoutIndex) {
@@ -61,12 +71,12 @@ const TableLayout = ({ navigation }: any) => {
         const data = [];
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                const indexKey = `${r + 1},${c + 1}`;
+                const indexKey = `${c + 1},${r + 1}`;
                 data.push({
                     id: indexKey,
                     table: tableMap.get(indexKey) || null,
-                    row: r,
-                    col: c
+                    row: c,
+                    col: r
                 });
             }
         }
@@ -77,27 +87,53 @@ const TableLayout = ({ navigation }: any) => {
         if (!item.table) {
             return <View style={styles.emptyCell} />;
         }
-
+        const type = item.table.st === 'PRINT_BILL' ? 'bp' : !!item.table.ro ? 'ot' : 'f';
         return (
-            <View style={[styles.tableCell, { borderColor: item.table.s === 1 ? 'orange' : 'lightgray' }]}>
-                <CustomText style={styles.tableName}>{item.table.n}</CustomText>
-                <CustomText style={styles.tableStatus}>{item.table.s === 1 ? 'Occupied' : 'Free'}</CustomText>
-            </View>
+            <TouchableOpacity activeOpacity={type === 'ot' ? 0.2 : 1} style={[styles.tableCell, { backgroundColor: GREET_TABLE_STATUS_COLOR[type], borderColor: GREET_TABLE_BORDER_COLOR[type], }]} onPress={() => { }} disabled={type === 'f'}>
+                {(type === 'bp' || type === 'ot') && <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', top: 5, left: 5 }}>
+                    <Octicons name="clock" size={isTablet ? 15 : 12} color="black" style={{ marginRight: 2 }} />
+                    {/* //here instead show time spend */}
+                    <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small} fontFamily={theme.fonts.Medium}>{moment(item.table.ro).format('hh:mm A')}</CustomText>
+                </View>}
+                <CustomText style={[styles.boxText]} numberOfLines={3}>{item.table.name}</CustomText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', bottom: 5, right: 5 }}>
+                    <Octicons name="people" size={isTablet ? 20 : 15} color="black" style={{ marginRight: 3 }} />
+                    <CustomText fontSize={isTablet ? theme.fontSize.medium : theme.fontSize.regular} fontFamily={theme.fonts.Medium}>{item.table.capacity ?? 0}</CustomText>
+                </View>
+            </TouchableOpacity>
         );
+    };
+
+    const renderContent = (key: string | null) => {
+        switch (key) {
+            case 'paxSet':
+            // return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={(item) => { modelRef.current?.replace('qrPrint'); setSelectedTable(item); }} />
+            case 'logout':
+                return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
+            default:
+                return null;
+        }
     };
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <ModalAsBottomSheet ref={modelRef} renderContent={renderContent} showCloseBtn />
             <Header
                 rightComponent={
                     <View style={[GlobalStyles.justifiedRow]}>
-                        <AnimatedRefreshIcon size={isTablet ? 30 : 25} color={'#fff'} getRefreshData={refreshHandler} />
+                        <TouchableOpacity onPress={() => { replace('Dashboard') }} style={{ marginRight: 20, padding: 5 }}>
+                            <Feather name="home" size={isTablet ? 30 : 25} color={'#fff'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => { modelRef.current?.open('logout') }} style={{ padding: 5 }}>
+                            <Feather name="log-out" size={isTablet ? 30 : 25} color={'#fff'} />
+                        </TouchableOpacity>
                     </View>
                 }
             />
             <View style={styles.container}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, paddingHorizontal: 10 }}>
                     <CustomText style={styles.title}>All Tables</CustomText>
+                    <AnimatedRefreshIcon getRefreshData={refreshHandler} />
                 </View>
 
                 <FlatList
@@ -119,7 +155,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
         paddingVertical: 10,
-        paddingHorizontal: isTablet ? 20 : 10,
+        paddingHorizontal: 10,
         marginTop: 20,
     },
     title: {
@@ -134,22 +170,16 @@ const createStyles = (theme: any) => StyleSheet.create({
     tableCell: {
         flex: 1,
         aspectRatio: 1,
-        margin: 5,
+        margin: 3,
         borderRadius: 10,
         borderWidth: 2,
-        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
     },
     emptyCell: {
         flex: 1,
         aspectRatio: 1,
-        margin: 5,
+        margin: 3,
     },
     tableName: {
         fontFamily: theme.fonts.Bold,
@@ -161,5 +191,11 @@ const createStyles = (theme: any) => StyleSheet.create({
         fontSize: isTablet ? theme.fontSize.medium : theme.fontSize.small,
         color: '#666',
         marginTop: 4,
-    }
+    },
+    boxText: {
+        fontSize: theme.fontSize.large,
+        fontFamily: theme.fonts.SemiBold,
+        width: '90%',
+        textAlign: 'center'
+    },
 })
