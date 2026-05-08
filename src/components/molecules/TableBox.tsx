@@ -6,6 +6,8 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useTheme } from 'src/context/ThemeContext';
 
+import Toast from 'react-native-toast-message';
+
 interface TableBoxProps {
     table: any;
     onPress?: (table: any) => void;
@@ -18,6 +20,17 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType }
     const styles = createStyles(theme);
 
     const type = table.st === 'PRINT_BILL' ? 'bp' : !!table.ro ? 'ot' : 'f';
+
+    const handlePress = () => {
+        if (screenType === 'reservation' && type !== 'f') {
+            Toast.show({
+                type: 'error',
+                text1: 'Sorry, table is already occupied'
+            });
+            return;
+        }
+        onPress && onPress(table);
+    };
 
     const getTimeSpent = (startTime: string) => {
         if (!startTime) return "";
@@ -42,7 +55,7 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType }
                 },
                 style
             ]}
-            onPress={() => onPress && onPress(table)}
+            onPress={handlePress}
             disabled={screenType === 'status' ? (type === 'f') : false}
         >
             {(type === 'bp' || type === 'ot') && (
