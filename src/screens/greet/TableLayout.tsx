@@ -48,21 +48,11 @@ const TableLayout = ({ navigation }: any) => {
     };
 
     const refreshHandler = async () => {
-        console.log("called ")
         const tables = await getTablesInfo(apiBaseUrl, branchId);
         if (tables) {
             setAllTables(tables);
         }
     };
-
-    useFocusEffect(
-        useCallback(() => {
-            getTables();
-            const intervalId = setInterval(async () => {
-                refreshHandler();
-            }, TABLE_REFRESH_INTERVAL);
-            return () => clearInterval(intervalId);
-        }, [branchId]));
 
     const gridData = useMemo(() => {
         const [cols, rows] = GRID_SIZE[branchId];
@@ -115,10 +105,12 @@ const TableLayout = ({ navigation }: any) => {
         dispatch(setIsLoading({ isLoading: false }));
         if (res) {
             await refreshHandler();
-            Toast.show({
-                type: 'success',
-                text1: 'Reservation created successfully'
-            });
+            setTimeout(() => {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Reservation created successfully'
+                });
+            }, 250);
         }
     }
 
@@ -139,6 +131,15 @@ const TableLayout = ({ navigation }: any) => {
                 return null;
         }
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            getTables();
+            const intervalId = setInterval(async () => {
+                refreshHandler();
+            }, TABLE_REFRESH_INTERVAL);
+            return () => clearInterval(intervalId);
+        }, [branchId]));
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -181,7 +182,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         flex: 1,
         paddingVertical: 10,
         paddingHorizontal: 10,
-        marginTop: 20,
+        marginTop: 30,
     },
     title: {
         fontSize: isTablet ? theme.fontSize.headingX : theme.fontSize.heading,

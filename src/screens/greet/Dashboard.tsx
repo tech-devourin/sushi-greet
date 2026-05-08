@@ -79,8 +79,8 @@ const GreetDashboard = ({ navigation }: any) => {
 const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
         padding: 10,
+        paddingTop: 25
     },
     buttonView: {
         justifyContent: 'center',

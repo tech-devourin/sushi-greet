@@ -3,7 +3,7 @@ import AlertModal from '@components/modals/AlertModal';
 import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import GreetTablesModal from '@components/modals/TablesModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
-import { Feather, Octicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useAppDispatch } from '@redux/Hooks';
 import { setIsLoading } from '@redux/States';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
@@ -94,23 +94,9 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
         <View style={styles.container}>
             <ModalAsBottomSheet ref={modelRef} renderContent={renderContent} showCloseBtn />
 
-            <View style={styles.headerRow}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <CustomText style={styles.statusText}>Table Status</CustomText>
-                    <AnimatedRefreshIcon getRefreshData={refreshHandler} />
-                </View>
-
-                <View style={styles.statsContainer}>
-                    <View style={styles.statsBadge}>
-                        <Octicons name='checklist' size={isTablet ? 22 : 18} color={theme.colors.text} />
-                        <CustomText style={styles.statsValue}>{totalReservations}</CustomText>
-                    </View>
-
-                    <View style={[styles.statsBadge, { marginLeft: isTablet ? 15 : 10 }]}>
-                        <Octicons name='people' size={isTablet ? 22 : 18} color={theme.colors.text} />
-                        <CustomText style={styles.statsValue}>{totalPax}</CustomText>
-                    </View>
-                </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                <CustomText style={styles.statusText}>Table Status</CustomText>
+                <AnimatedRefreshIcon getRefreshData={refreshHandler} />
             </View>
 
             <View style={styles.cardsRow}>
@@ -124,12 +110,6 @@ const createStyles = (theme: any) => StyleSheet.create({
     container: {
         marginTop: 15,
         paddingHorizontal: isTablet ? 10 : 0
-    },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 15
     },
     statusText: {
         fontSize: isTablet ? theme.fontSize.headingX : theme.fontSize.heading,

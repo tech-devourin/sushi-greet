@@ -74,7 +74,6 @@ const Header: React.FC<HeaderProps> = ({ rightComponent }) => {
 
 const createStyles = (theme: any, insets: any) => StyleSheet.create({
     headerContainer: {
-        zIndex: 1,
     },
     contentContainer: {
         flexDirection: 'row',
