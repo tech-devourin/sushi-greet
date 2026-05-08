@@ -10,10 +10,11 @@ import { useTheme } from 'src/context/ThemeContext'
 type Props = {
     getRefreshData: () => Promise<void>,
     color?: string,
-    paddingRight?: DimensionValue
+    paddingRight?: DimensionValue,
+    size?: number
 }
 
-const AnimatedRefreshIcon: FC<Props> = ({ getRefreshData, color, paddingRight }) => {
+const AnimatedRefreshIcon: FC<Props> = ({ getRefreshData, color, paddingRight, size }) => {
     const { theme } = useTheme();
     const rotation = useSharedValue(0);
 
@@ -40,7 +41,7 @@ const AnimatedRefreshIcon: FC<Props> = ({ getRefreshData, color, paddingRight })
             <Animated.View style={animatedStyle}>
                 <Feather
                     name="refresh-cw"
-                    size={isTablet ? 25 : 20}
+                    size={size ?? (isTablet ? 25 : 20)}
                     color={color ?? theme.colors.grayDark}
                 />
             </Animated.View>

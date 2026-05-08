@@ -80,7 +80,6 @@ const createStyles = (theme: any) => StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
         padding: 10,
-        paddingTop: 20
     },
     buttonView: {
         justifyContent: 'center',
