@@ -1,27 +1,29 @@
 import CustomText from '@components/CustomText';
 import AlertModal from '@components/modals/AlertModal';
 import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
+import PaxSetModal from '@components/modals/PaxSetModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
 import Header from '@components/molecules/Header';
-import { Feather, Octicons } from '@expo/vector-icons';
+import TableBox from '@components/molecules/TableBox';
+import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '@redux/Hooks';
-import { selectBranchId, setIsLoading } from '@redux/States';
+import { selectBranchId, selectUserData, setIsLoading } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
-import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
-import { getTablesInfo, logoutStaff } from '@utils/Helper';
+import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
+import { getTablesInfo, logoutStaff, makeAPIRequest } from '@utils/Helper';
 import { replace } from '@utils/NavigationUtil';
 import { ModalRefType } from '@utils/Types';
 import moment from 'moment';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useTheme } from 'src/context/ThemeContext';
 
 const GRID_SIZE: any = {
     1: [4, 27],
     2: [6, 13]
 }
-//here 1 is branchId and 4 is col, 20 is rows
 
 const TableLayout = ({ navigation }: any) => {
     const { theme } = useTheme();
@@ -29,10 +31,12 @@ const TableLayout = ({ navigation }: any) => {
     const { apiBaseUrl } = useEnvironment();
     const branchId = useAppSelector(selectBranchId) || 0;
     const styles = createStyles(theme);
+    const userData = useAppSelector(selectUserData);
 
     const GlobalStyles = useGlobalStyles();
     const modelRef = useRef<ModalRefType | null>(null);
     const [allTables, setAllTables] = useState<{ [key: string]: any }[]>([]);
+    const [selectedItem, setSelectedItem] = useState<{ [key: string]: any } | null>(null);
 
     const getTables = async () => {
         dispatch(setIsLoading({ isLoading: true }));
@@ -44,6 +48,7 @@ const TableLayout = ({ navigation }: any) => {
     };
 
     const refreshHandler = async () => {
+        console.log("called ")
         const tables = await getTablesInfo(apiBaseUrl, branchId);
         if (tables) {
             setAllTables(tables);
@@ -87,27 +92,47 @@ const TableLayout = ({ navigation }: any) => {
         if (!item.table) {
             return <View style={styles.emptyCell} />;
         }
-        const type = item.table.st === 'PRINT_BILL' ? 'bp' : !!item.table.ro ? 'ot' : 'f';
-        return (
-            <TouchableOpacity activeOpacity={type === 'ot' ? 0.2 : 1} style={[styles.tableCell, { backgroundColor: GREET_TABLE_STATUS_COLOR[type], borderColor: GREET_TABLE_BORDER_COLOR[type], }]} onPress={() => { }} disabled={type === 'f'}>
-                {(type === 'bp' || type === 'ot') && <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', top: 5, left: 5 }}>
-                    <Octicons name="clock" size={isTablet ? 15 : 12} color="black" style={{ marginRight: 2 }} />
-                    {/* //here instead show time spend */}
-                    <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small} fontFamily={theme.fonts.Medium}>{moment(item.table.ro).format('hh:mm A')}</CustomText>
-                </View>}
-                <CustomText style={[styles.boxText]} numberOfLines={3}>{item.table.name}</CustomText>
-                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', bottom: 5, right: 5 }}>
-                    <Octicons name="people" size={isTablet ? 20 : 15} color="black" style={{ marginRight: 3 }} />
-                    <CustomText fontSize={isTablet ? theme.fontSize.medium : theme.fontSize.regular} fontFamily={theme.fonts.Medium}>{item.table.capacity ?? 0}</CustomText>
-                </View>
-            </TouchableOpacity>
-        );
+        return <TableBox table={item.table} onPress={() => { modelRef.current?.open('paxSet'); setSelectedItem(item.table) }} screenType='reservation' />;
     };
+
+    const createReservation = async (pax: number) => {
+        dispatch(setIsLoading({ isLoading: true }));
+        const url = `${apiBaseUrl}hostessreservetable`;
+        const body = {
+            accepted: 1,
+            checkedIn: 1,
+            customerid: 1,
+            duration: 2,
+            partySize: pax,
+            queued: false,
+            reservationDate: moment().format('YYYY-MM-DD'),
+            reservationTime: moment().format('HH:mm'),
+            source: "CaptainPad",
+            staffId: userData?.userId,
+            tableId: selectedItem?.tid
+        }
+        const res = await makeAPIRequest(url, body, 'POST');
+        dispatch(setIsLoading({ isLoading: false }));
+        if (res) {
+            await refreshHandler();
+            Toast.show({
+                type: 'success',
+                text1: 'Reservation created successfully'
+            });
+        }
+    }
 
     const renderContent = (key: string | null) => {
         switch (key) {
             case 'paxSet':
-            // return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={(item) => { modelRef.current?.replace('qrPrint'); setSelectedTable(item); }} />
+                return <PaxSetModal
+                    table={selectedItem}
+                    closeModal={() => modelRef.current?.close()}
+                    onSubmit={(pax) => {
+                        modelRef.current?.close();
+                        createReservation(pax);
+                    }}
+                />;
             case 'logout':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
             default:
@@ -167,35 +192,9 @@ const createStyles = (theme: any) => StyleSheet.create({
     listContent: {
         paddingBottom: 40,
     },
-    tableCell: {
-        flex: 1,
-        aspectRatio: 1,
-        margin: 3,
-        borderRadius: 10,
-        borderWidth: 2,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     emptyCell: {
         flex: 1,
         aspectRatio: 1,
         margin: 3,
-    },
-    tableName: {
-        fontFamily: theme.fonts.Bold,
-        fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium,
-        color: '#333',
-    },
-    tableStatus: {
-        fontFamily: theme.fonts.Regular,
-        fontSize: isTablet ? theme.fontSize.medium : theme.fontSize.small,
-        color: '#666',
-        marginTop: 4,
-    },
-    boxText: {
-        fontSize: theme.fontSize.large,
-        fontFamily: theme.fonts.SemiBold,
-        width: '90%',
-        textAlign: 'center'
     },
 })

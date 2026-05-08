@@ -1,14 +1,14 @@
 import CustomText from '@components/CustomText';
 import ModalHeader from '@components/molecules/ModalHeader';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import TableBox from '@components/molecules/TableBox';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@redux/Hooks';
 import { selectBranchId } from '@redux/States';
-import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
+import { GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
 import { getTablesInfo } from '@utils/Helper';
 import { TypeTableStatus } from '@utils/Types';
-import moment from "moment";
 import { FC, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useTheme } from 'src/context/ThemeContext';
 
 type TypeGreetTablesModal = {
@@ -34,18 +34,12 @@ const GreetTablesModal: FC<TypeGreetTablesModal> = ({ closeModal, type, submitHa
     };
 
     const renderBox = ({ item }: { item: any }) => (
-        <TouchableOpacity activeOpacity={type === 'ot' ? 0.2 : 1} style={[styles.box, { backgroundColor: GREET_TABLE_STATUS_COLOR[type], borderColor: GREET_TABLE_BORDER_COLOR[type], }]} onPress={() => { submitHandler(item) }} disabled={type === 'f'}>
-            {(type === 'bp' || type === 'ot') && <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', top: 5, left: 5 }}>
-                <Octicons name="clock" size={isTablet ? 15 : 12} color="black" style={{ marginRight: 2 }} />
-                {/* //here instead show time spend */}
-                <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small} fontFamily={theme.fonts.Medium}>{moment(item.ro).format('hh:mm A')}</CustomText>
-            </View>}
-            <CustomText style={[styles.boxText]} numberOfLines={3}>{item.name}</CustomText>
-            <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', bottom: 5, right: 5 }}>
-                <Octicons name="people" size={isTablet ? 20 : 15} color="black" style={{ marginRight: 3 }} />
-                <CustomText fontSize={isTablet ? theme.fontSize.medium : theme.fontSize.regular} fontFamily={theme.fonts.Medium}>{item.capacity ?? 0}</CustomText>
-            </View>
-        </TouchableOpacity>
+        <TableBox
+            table={item}
+            onPress={submitHandler}
+            style={styles.box}
+            screenType='status'
+        />
     );
 
     useEffect(() => {
@@ -94,20 +88,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     box: {
         flex: 1,
         margin: 10,
-        height: 120,
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 0.5,
-        borderRadius: 10,
         maxWidth: isTablet ? '24%' : '30%'
     },
-    boxText: {
-        fontSize: theme.fontSize.large,
-        fontFamily: theme.fonts.SemiBold,
-        width: '90%',
-        textAlign: 'center'
-    },
-    orderRunning: { fontSize: theme.fontSize.xsmall, position: 'absolute', top: 5, left: 5, paddingHorizontal: 5, paddingVertical: 3, backgroundColor: theme.colors.default, borderRadius: 5, color: '#fff' }
 });
 
 export default GreetTablesModal;

@@ -4,8 +4,8 @@ import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import GreetTablesModal from '@components/modals/TablesModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
 import { Feather, Octicons } from '@expo/vector-icons';
-import { useAppDispatch, useAppSelector } from '@redux/Hooks';
-import { selectUserData, setIsLoading } from '@redux/States';
+import { useAppDispatch } from '@redux/Hooks';
+import { setIsLoading } from '@redux/States';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
 import { logoutStaff, makeAPIRequest } from '@utils/Helper';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
@@ -28,7 +28,6 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     const { apiBaseUrl } = useEnvironment();
     const { theme } = useTheme();
     const styles = createStyles(theme);
-    const userData = useAppSelector(selectUserData);
     const totalTables = tableStatus.bp + tableStatus.f + tableStatus.ot;
 
     const [selectedItem, setSelectedItem] = useState<string>('');
