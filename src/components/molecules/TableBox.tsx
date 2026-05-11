@@ -82,10 +82,10 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
 const createStyles = (theme: any) => StyleSheet.create({
     tableCell: {
         flex: 1,
-        aspectRatio: 1,
+        aspectRatio: 1.5,
         margin: 2,
         borderRadius: 10,
-        borderWidth: 2,
+        borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -104,7 +104,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         right: 5
     },
     boxText: {
-        fontSize: theme.fontSize.large,
+        fontSize: theme.fontSize.heading,
         fontFamily: theme.fonts.SemiBold,
         width: '90%',
         textAlign: 'center'

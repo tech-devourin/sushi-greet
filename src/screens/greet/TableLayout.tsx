@@ -205,7 +205,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     emptyCell: {
         flex: 1,
-        aspectRatio: 1,
+        aspectRatio: 1.5,
         margin: 3,
     },
 })
