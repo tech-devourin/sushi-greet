@@ -28,7 +28,7 @@ const GreetTablesModal: FC<TypeGreetTablesModal> = ({ closeModal, type, submitHa
     const getTables = async () => {
         setLoader(true);
         const tables = await getTablesInfo(apiBaseUrl, branchId);
-        const filteredTables = tables.filter((item: any) => type === "bp" ? item.st === 'PRINT_BILL' : type === "ot" ? !!item.ro : !item.ro);
+        const filteredTables = tables.filter((item: any) => type === "bp" ? item.st === 'PRINT_BILL' : type === "ot" ? (!!item.ro && item.st !== 'PRINT_BILL') : !item.ro);
         setTables(filteredTables);
         setLoader(false);
     };
