@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@redux/Hooks';
 import { selectBranchId, selectUserData, setIsLoading } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
 import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
-import { getTablesInfo, logoutStaff, makeAPIRequest } from '@utils/Helper';
+import { callQRApi, getTablesInfo, logoutStaff, makeAPIRequest } from '@utils/Helper';
 import { replace } from '@utils/NavigationUtil';
 import { ModalRefType } from '@utils/Types';
 import moment from 'moment';
@@ -112,6 +112,7 @@ const TableLayout = ({ navigation }: any) => {
         const res = await makeAPIRequest(url, body, 'POST');
         dispatch(setIsLoading({ isLoading: false }));
         if (res) {
+            await callQRApi(apiBaseUrl, selectedItem?.tid);
             await refreshHandler();
             setTimeout(() => {
                 Toast.show({

@@ -129,3 +129,12 @@ export const logoutStaff = async (ipPage?: boolean) => {
     await AsyncStorage.multiRemove(["loggedIn", "selectedModule", ...(ipPage ? ['initialSetup'] : [])]);
 };
 
+export const callQRApi = async (apiBaseUrl: string, tableId: any) => {
+    const url = apiBaseUrl + `simpleresqr/sushi`;
+    const headers: RequestInit = { headers: { 'Content-Type': "application/json", res: tableId } };
+    const response = await makeAPIRequest(url, null, 'POST', headers, undefined, false, undefined, false);
+    if (response) {
+        Toast.show({ type: 'success', text1: 'QR Code generated successfully' });
+    }
+}
+

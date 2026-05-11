@@ -7,12 +7,11 @@ import { Feather } from '@expo/vector-icons';
 import { useAppDispatch } from '@redux/Hooks';
 import { setIsLoading } from '@redux/States';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
-import { logoutStaff, makeAPIRequest } from '@utils/Helper';
+import { callQRApi, logoutStaff } from '@utils/Helper';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
 import * as Haptics from 'expo-haptics';
 import { FC, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { useTheme } from 'src/context/ThemeContext';
 
 type Props = {
@@ -67,12 +66,7 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     const qrPrintHandler = async () => {
         modelRef.current?.close();
         dispatch(setIsLoading({ isLoading: true }));
-        const url = apiBaseUrl + `simpleresqr/sushi`;
-        const headers: RequestInit = { headers: { 'Content-Type': "application/json", res: selectedTable?.trid } };
-        const response = await makeAPIRequest(url, null, 'POST', headers, undefined, false, undefined, false);
-        if (response) {
-            Toast.show({ type: 'success', text1: 'QR Code generated successfully' });
-        }
+        await callQRApi(apiBaseUrl, selectedTable?.tid);
         dispatch(setIsLoading({ isLoading: false }));
     };
 
