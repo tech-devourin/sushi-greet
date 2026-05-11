@@ -83,7 +83,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     tableCell: {
         flex: 1,
         aspectRatio: 1,
-        margin: 3,
+        margin: 2,
         borderRadius: 10,
         borderWidth: 2,
         justifyContent: 'center',

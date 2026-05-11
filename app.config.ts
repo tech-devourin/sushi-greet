@@ -28,7 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   "name": getAppName(),
   "slug": "sushi-greet",
   "version": "1.0.0",
-  "orientation": "portrait",
+  "orientation": "default",
   "icon": "./assets/icons/app_icon.png",
   "scheme": "sushigreet",
   "userInterfaceStyle": "automatic",
