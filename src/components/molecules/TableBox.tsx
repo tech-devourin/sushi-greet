@@ -2,7 +2,7 @@ import CustomText from '@components/CustomText';
 import { Octicons } from '@expo/vector-icons';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, isTablet } from '@utils/Constants';
 import moment from 'moment';
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from 'src/context/ThemeContext';
@@ -18,10 +18,30 @@ interface TableBoxProps {
     refreshTime?: number;
 }
 
+const TableCapacityBadge = memo(({ capacity, isLandscape, theme }: any) => {
+    const styles = createStyles(theme, isLandscape);
+    return (
+        <View style={styles.paxShape}>
+            <Svg height="100%" width="100%" viewBox="0 0 600 600" preserveAspectRatio="none">
+                <Path d="M 0 600 C 200 550 550 300 600 -2 L 600 600 L 0 600 Z" fill={theme.colors.theme} />
+            </Svg>
+            <View style={styles.paxTextContainer}>
+                <CustomText
+                    fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}
+                    fontFamily={theme.fonts.SemiBold}
+                    color="white"
+                >
+                    {capacity}
+                </CustomText>
+            </View>
+        </View>
+    );
+});
+
 const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, refreshTime }) => {
     const { theme } = useTheme();
-    const styles = createStyles(theme);
     const isLandscape = useOrientation();
+    const styles = createStyles(theme, isLandscape);
     const type = table.st === 'PRINT_BILL' ? 'bp' : !!table.ro ? 'ot' : 'f';
 
     const getTimeSpent = (startTime: string) => {
@@ -72,25 +92,16 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
             <CustomText style={styles.boxText} numberOfLines={3}>
                 {table.name || table.n}
             </CustomText>
-            <View style={[styles.paxShape, { width: isLandscape ? '50%' : '60%' }, !isLandscape ? { aspectRatio: 1 } : { height: '90%' }]}>
-                <Svg height="100%" width="100%" viewBox="0 0 600 600" preserveAspectRatio="none">
-                    <Path d="M 0 600 C 200 550 550 300 600 -2 L 600 600 L 0 600 Z" fill={theme.colors.theme} />
-                </Svg>
-                <View style={styles.paxTextContainer}>
-                    <CustomText
-                        fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}
-                        fontFamily={theme.fonts.SemiBold}
-                        color="white"
-                    >
-                        {table.capacity ?? table.c ?? 0}
-                    </CustomText>
-                </View>
-            </View>
+            <TableCapacityBadge 
+                capacity={table.capacity ?? table.c ?? 0} 
+                isLandscape={isLandscape} 
+                theme={theme} 
+            />
         </TouchableOpacity>
     );
 };
 
-const createStyles = (theme: any) => StyleSheet.create({
+const createStyles = (theme: any, isLandscape?: boolean) => StyleSheet.create({
     tableCell: {
         flex: 1,
         margin: 2,
@@ -111,6 +122,9 @@ const createStyles = (theme: any) => StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         right: 0,
+        width: isLandscape ? '50%' : '60%',
+        aspectRatio: isLandscape ? undefined : 1,
+        height: isLandscape ? '90%' : undefined,
     },
     paxTextContainer: {
         position: 'absolute',
@@ -125,4 +139,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
 });
 
-export default TableBox;
+export default memo(TableBox, (prev, next) => {
+    return prev.table.st === next.table.st && 
+           prev.table.ro === next.table.ro && 
+           prev.refreshTime === next.refreshTime;
+});
