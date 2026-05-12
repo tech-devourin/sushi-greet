@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useOrientation } from '@hooks/useOrientation';
 import { isTablet } from '@utils/Constants';
 import toastConfig from '@utils/ToastMessageConfiguration';
 import { ModalRefType } from '@utils/Types';
@@ -20,6 +21,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const styles = createStyles(theme);
+    const isLandscape = useOrientation();
 
     // UI state
     const [activeModal, setActiveModal] = useState<string>('');
@@ -147,7 +149,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
                             </TouchableOpacity>
                         )}
 
-                        <View style={[styles.contentContainer, height && { height: height }]}>
+                        <View style={[styles.contentContainer, height && { height: height }, { width: isLandscape ? '50%' : isTablet ? '75%' : '100%' }]}>
                             <Animated.View style={[
                                 { transform: [{ translateX }] },
                                 styles.modalContent,
@@ -195,7 +197,6 @@ const createStyles = (theme: any) => StyleSheet.create({
         paddingTop: 5
     },
     contentContainer: {
-        width: isTablet ? '75%' : '100%',
         alignSelf: 'center',
         maxHeight: theme.device.height * 0.75,
         minHeight: 180,

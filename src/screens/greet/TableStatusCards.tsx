@@ -90,7 +90,7 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                 <CustomText style={styles.statusText}>Table Status</CustomText>
-                <AnimatedRefreshIcon getRefreshData={refreshHandler} />
+                <AnimatedRefreshIcon getRefreshData={refreshHandler} color={theme.colors.theme} />
             </View>
 
             <View style={styles.cardsRow}>

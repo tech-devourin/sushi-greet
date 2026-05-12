@@ -2,18 +2,17 @@ import Logo from '@assets/icons/devourin_icon.png';
 import SushiLogo from '@assets/images/sushi_plus.png';
 import { isTablet } from '@utils/Constants';
 import React from 'react';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, Path, Stop, LinearGradient as SvgGradient } from 'react-native-svg';
+import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import { useTheme } from 'src/context/ThemeContext';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface HeaderProps {
     rightComponent?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({ rightComponent }) => {
+    const { width: SCREEN_WIDTH } = useWindowDimensions();
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const styles = createStyles(theme, insets);
