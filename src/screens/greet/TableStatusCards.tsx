@@ -12,6 +12,7 @@ import { ModalRefType, TypeTableStatus } from '@utils/Types';
 import * as Haptics from 'expo-haptics';
 import { FC, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useTheme } from 'src/context/ThemeContext';
 
 type Props = {
@@ -66,7 +67,8 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
     const qrPrintHandler = async () => {
         modelRef.current?.close();
         dispatch(setIsLoading({ isLoading: true }));
-        await callQRApi(apiBaseUrl, selectedTable?.tid);
+        const res = await callQRApi(apiBaseUrl, selectedTable?.trid);
+        if (res) Toast.show({ type: 'success', text1: 'QR Code generated successfully' });
         dispatch(setIsLoading({ isLoading: false }));
     };
 

@@ -112,14 +112,14 @@ const TableLayout = ({ navigation }: any) => {
         const res = await makeAPIRequest(url, body, 'POST');
         dispatch(setIsLoading({ isLoading: false }));
         if (res) {
-            await callQRApi(apiBaseUrl, selectedItem?.tid);
-            await refreshHandler();
+            await callQRApi(apiBaseUrl, res?.id);
+            refreshHandler();
             setTimeout(() => {
                 Toast.show({
                     type: 'success',
                     text1: 'Reservation created successfully'
                 });
-            }, 250);
+            }, 50);
         }
     }
 
