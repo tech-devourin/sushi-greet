@@ -5,7 +5,7 @@ import toastConfig from '@utils/ToastMessageConfiguration';
 import { ModalRefType } from '@utils/Types';
 import { BlurView } from 'expo-blur';
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Animated, Keyboard, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Keyboard, Modal, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useTheme } from 'src/context/ThemeContext';
@@ -18,10 +18,11 @@ type Props = {
 }
 
 const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
+    const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
-    const styles = createStyles(theme);
     const isLandscape = useOrientation();
+    const styles = createStyles(theme, SCREEN_HEIGHT, isLandscape);
 
     // UI state
     const [activeModal, setActiveModal] = useState<string>('');
@@ -30,7 +31,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     // Animation values
-    const translateY = useRef(new Animated.Value(theme.device.height)).current;
+    const translateY = useRef(new Animated.Value(1000)).current; // Default large value
     const backdropOpacity = useRef(new Animated.Value(0)).current;
     const translateX = useRef(new Animated.Value(0)).current;
 
@@ -77,7 +78,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
                 useNativeDriver: true,
             }),
             Animated.timing(translateY, {
-                toValue: theme.device.height,
+                toValue: SCREEN_HEIGHT,
                 duration: 250,
                 useNativeDriver: true,
             }),
@@ -105,10 +106,10 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
             animateOut();
         },
         replace: (modalKey: string, heightVal?: any) => {
-            Animated.timing(translateX, { toValue: -theme.device.width, duration: 150, useNativeDriver: true }).start(() => {
+            Animated.timing(translateX, { toValue: -SCREEN_WIDTH, duration: 150, useNativeDriver: true }).start(() => {
                 setHeight(heightVal ?? null);
                 setActiveModal(modalKey);
-                translateX.setValue(theme.device.width);
+                translateX.setValue(SCREEN_WIDTH);
                 Animated.timing(translateX, { toValue: 0, duration: 150, useNativeDriver: true }).start();
             });
         }
@@ -166,7 +167,7 @@ const ModalAsBottomSheet = forwardRef<ModalRefType, Props>((props, ref) => {
     );
 });
 
-const createStyles = (theme: any) => StyleSheet.create({
+const createStyles = (theme: any, screenHeight: number, isLandscape: boolean) => StyleSheet.create({
     modalContainer: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -189,7 +190,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     modalContent: {
         overflow: 'hidden',
         backgroundColor: "#fff",
-        maxHeight: theme.device.height * 0.80,
+        maxHeight: screenHeight * 0.80,
         minHeight: 180,
         width: '100%',
         alignSelf: 'center',
@@ -198,7 +199,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     contentContainer: {
         alignSelf: 'center',
-        maxHeight: theme.device.height * 0.75,
+        maxHeight: screenHeight * 0.75,
         minHeight: 180,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,

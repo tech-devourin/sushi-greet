@@ -4,7 +4,7 @@ import TableBox from '@components/molecules/TableBox';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@redux/Hooks';
 import { selectBranchId } from '@redux/States';
-import { GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
+import { GREET_TABLE_STATUS_KEYS, useEnvironment } from '@utils/Constants';
 import { getTablesInfo } from '@utils/Helper';
 import { TypeTableStatus } from '@utils/Types';
 import { FC, useEffect, useState } from 'react';
@@ -56,7 +56,7 @@ const GreetTablesModal: FC<TypeGreetTablesModal> = ({ closeModal, type, submitHa
                             data={tables}
                             renderItem={renderBox}
                             keyExtractor={(item, index) => index.toString()}
-                            numColumns={isTablet ? 4 : 3}
+                            numColumns={3}
                             contentContainerStyle={styles.flatListContent}
                             showsVerticalScrollIndicator={false}
                             initialNumToRender={10}
@@ -88,7 +88,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     box: {
         flex: 1,
         margin: 5,
-        maxWidth: isTablet ? '24%' : '30%'
+        maxWidth: '30%'
     },
 });
 
