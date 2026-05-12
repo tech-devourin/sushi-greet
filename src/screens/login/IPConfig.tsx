@@ -3,6 +3,7 @@ import Logo from "@assets/icons/logo.png";
 import CustomText from '@components/CustomText';
 import { Ionicons } from '@expo/vector-icons';
 import useKeyboardOffsetHeight from '@hooks/useKeyboardOffsetHeight';
+import { useOrientation } from '@hooks/useOrientation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setBranchId, setdbName, setipAddress } from '@redux/States';
 import { makeAPIRequest, openExternalLink } from '@utils/Helper';
@@ -20,6 +21,7 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
+    useWindowDimensions,
     View
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -33,6 +35,8 @@ import { useTheme } from "src/context/ThemeContext";
 
 const IPConfigScreen = ({ route }: any) => {
     const { theme } = useTheme();
+    const { width, height } = useWindowDimensions();
+    const isLandscape = useOrientation();
     const dispatch = useAppDispatch();
     const { apiBaseUrl } = useEnvironment();
     const { top } = useSafeAreaInsets();
@@ -186,14 +190,14 @@ const IPConfigScreen = ({ route }: any) => {
             <Image source={LogoImage} style={styles.bgLogo} />
             <CustomText style={styles.version}>v{Constants.expoConfig?.version}_{OTA_VERSION}</CustomText>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
-                    <Image source={Logo} style={styles.image} />
-                    <View style={[styles.centerView]}>
+                <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingTop: isLandscape ? 20 : (isTablet ? height * 0.1 : height * 0.02) }]}>
+                    <Image source={Logo} style={[styles.image, { width: width * (isLandscape ? 0.35 : Platform.OS === 'ios' ? 0.4 : 0.6), height: width * (isLandscape ? 0.1 : 0.2) }]} />
+                    <View style={[styles.centerView, { paddingVertical: isTablet ? 40 : 30, width: isLandscape ? '50%' : '80%' }]}>
                         <CustomText fontFamily={theme.fonts.SemiBold} fontSize={theme.fontSize.headingX}>Initial Setup</CustomText>
                         <CustomText fontSize={theme.fontSize.large} style={{ marginTop: 5 }}>Connected Wifi {`<${currentLocalIp}>`}</CustomText>
                         <View style={{ flex: 1, width: '100%', marginVertical: 25 }}>
                             {branchSelectionView ?
-                                <Animated.View style={{ marginTop: 30, marginBottom: '40%', height: '100%' }} entering={FadeInRight.duration(500)}>
+                                <Animated.View style={{ marginTop: isLandscape ? 15 : 30, marginBottom: isLandscape ? '10%' : '40%', height: '100%' }} entering={FadeInRight.duration(500)}>
                                     <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>Select Restaurant Branch</CustomText>
                                     <View style={[styles.dropdownContainer]}>
                                         <Dropdown
@@ -216,11 +220,11 @@ const IPConfigScreen = ({ route }: any) => {
                                 </Animated.View>
                                 :
                                 <View>
-                                    <View style={{ marginVertical: 30 }}>
+                                    <View style={{ marginVertical: isLandscape ? 15 : 30 }}>
                                         <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>IP Configuration</CustomText>
                                         <View style={styles.ipContainer}>
                                             {["part1", "part2", "part3", "part4"].map((part: string, index: number) => (
-                                                <View key={index} style={[{ width: isTablet ? '18%' : '23%' }, styles.boxView, focusedInput === part && styles.focusedInput]}>
+                                                <View key={index} style={[{ width: isLandscape ? '18%' : isTablet ? '18%' : '23%' }, styles.boxView, focusedInput === part && styles.focusedInput]}>
                                                     <TextInput
                                                         value={ipAddress[part as 'part1']}
                                                         key={part}
@@ -244,7 +248,7 @@ const IPConfigScreen = ({ route }: any) => {
                                             ))}
                                         </View>
                                     </View>
-                                    <View style={{ marginBottom: 30 }}>
+                                    <View style={{ marginBottom: isLandscape ? 15 : 30 }}>
                                         <CustomText fontFamily={theme.fonts.Medium} fontSize={isTablet ? theme.fontSize.large : theme.fontSize.medium}>Restaurant Name</CustomText>
                                         <View style={[styles.boxView, { marginTop: 10 }, focusedInput === 'part5' && styles.focusedInput]}>
                                             <TextInput
@@ -276,7 +280,7 @@ const IPConfigScreen = ({ route }: any) => {
                 </ScrollView>
             </KeyboardAvoidingView>
             {(Platform.OS == 'ios' || !keyboardVisible) && <View style={styles.bottomBar}>
-                <CustomText fontSize={isTablet ? theme.fontSize.regular : theme.fontSize.small}>By continuing, you agree to our</CustomText>
+                <CustomText fontSize={theme.fontSize.small}>By continuing, you agree to our</CustomText>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Terms of Service</CustomText>
                     <CustomText style={styles.footerText} onPress={() => { openExternalLink("https://devourin.com/privacy/") }}>Privacy Policy</CustomText>
@@ -358,7 +362,6 @@ const createStyles = (theme: any) => StyleSheet.create({
         borderColor: theme.colors.theme,
     },
     centerView: {
-        paddingVertical: isTablet ? 40 : 30,
         paddingHorizontal: isTablet ? 50 : 25,
         width: isTablet ? '70%' : '92%',
         alignItems: 'center',
@@ -409,7 +412,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     footerText: {
         textDecorationLine: 'underline',
         marginHorizontal: 5,
-        fontSize: isTablet ? theme.fontSize.regular : theme.fontSize.small
+        fontSize: theme.fontSize.small
     },
     version: {
         fontSize: theme.fontSize.extraSmall,
@@ -417,7 +420,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         top: theme.device.height * 0.05,
         paddingHorizontal: 5,
         color: 'gray',
-        right: 0
+        right: 10
     },
     bgCircleBlue: {
         position: 'absolute',

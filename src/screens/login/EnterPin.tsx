@@ -5,6 +5,7 @@ import AlertModal from '@components/modals/AlertModal';
 import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import { Ionicons } from '@expo/vector-icons';
 import { useInitialDataFetch } from '@hooks/useInitialDataFetch';
+import { useOrientation } from '@hooks/useOrientation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserData } from '@redux/States';
 import { replace, resetAndNavigateToModule } from '@utils/NavigationUtil';
@@ -82,6 +83,7 @@ const PinDot = memo(({ filled, value, isVisible }: { filled: boolean; value: str
 
 const EnterPinScreen = ({ route }: any) => {
     const { theme } = useTheme();
+    const isLandscape = useOrientation();
     const styles = createStyles(theme);
 
     const GlobalStyles = useGlobalStyles();
@@ -164,21 +166,21 @@ const EnterPinScreen = ({ route }: any) => {
         <SafeAreaView style={styles.container}>
             <ModalAsBottomSheet ref={modelRef} showCloseBtn renderContent={() => <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to re-register device ? This will erase all data from app."} heading={"Re-Register"} onConfirm={handleBackPress} />} />
             <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                <View style={{ flex: 0.1, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ flex: 0.12, justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
                     <Image
                         source={Logo}
-                        style={{ width: isTablet ? '50%' : '60%', height: '80%' }}
+                        style={{ width: isLandscape ? '25%' : isTablet ? '50%' : '60%', height: '80%', resizeMode: 'contain' }}
                     />
                 </View>
-                <View style={{ flex: 0.25, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={[isLandscape ? styles.passlockLandscape : styles.passlock]}>
                     <Image
                         source={Passlock}
-                        style={{ width: '40%', marginTop: 0, resizeMode: 'contain', }}
+                        style={!isLandscape ? { width: isLandscape ? '15%' : '30%', marginTop: 0, resizeMode: 'contain' } : {}}
                     />
                 </View>
-                <View style={{ flex: isTablet ? 0.08 : Platform.OS === 'ios' ? 0.18 : 0.1, alignItems: 'center', justifyContent: 'center', }}>
+                <View style={styles.pinView}>
                     <CustomText fontFamily={theme.fonts.Medium} fontSize={theme.fontSize.large} style={{ padding: 10 }}>Please Enter Your Passcode</CustomText>
-                    <Animated.View style={[styles.circleContainer, shakeStyle]}>
+                    <Animated.View style={[styles.circleContainer, { width: isLandscape ? '40%' : '60%' }, shakeStyle]}>
                         {[...Array(6)].map((_, index) => (
                             <PinDot
                                 key={index}
@@ -194,7 +196,7 @@ const EnterPinScreen = ({ route }: any) => {
                         {['1', '2', '3'].map((num, index) => (
                             <TouchableOpacity
                                 key={index}
-                                style={styles.numberButton}
+                                style={[styles.numberButton, { width: isLandscape ? '12%' : '20%' }]}
                                 onPress={() => handleNumberPress(num)}
                             >
                                 <CustomText style={styles.numberText}>{num}</CustomText>
@@ -205,7 +207,7 @@ const EnterPinScreen = ({ route }: any) => {
                         {['4', '5', '6'].map((num, index) => (
                             <TouchableOpacity
                                 key={index}
-                                style={styles.numberButton}
+                                style={[styles.numberButton, { width: isLandscape ? '12%' : '20%' }]}
                                 onPress={() => handleNumberPress(num)}
                             >
                                 <CustomText style={styles.numberText}>{num}</CustomText>
@@ -216,7 +218,7 @@ const EnterPinScreen = ({ route }: any) => {
                         {['7', '8', '9'].map((num, index) => (
                             <TouchableOpacity
                                 key={index}
-                                style={styles.numberButton}
+                                style={[styles.numberButton, { width: isLandscape ? '12%' : '20%' }]}
                                 onPress={() => handleNumberPress(num)}
                             >
                                 <CustomText style={styles.numberText}>{num}</CustomText>
@@ -226,41 +228,43 @@ const EnterPinScreen = ({ route }: any) => {
 
                     <View style={[styles.row, { width: isTablet ? '50%' : '70%' }]}>
                         <View
-                            style={[styles.numberButton, { borderColor: 'transparent', backgroundColor: 'transparent' }]}>
+                            style={[styles.numberButton, { borderColor: 'transparent', backgroundColor: 'transparent', width: isLandscape ? '12%' : '20%' }]}>
                             <CustomText fontFamily={theme.fonts.Medium}></CustomText>
                         </View>
                         <TouchableOpacity
-                            style={styles.numberButton}
+                            style={[styles.numberButton, { width: isLandscape ? '12%' : '20%' }]}
                             onPress={() => handleNumberPress('0')}
                         >
                             <CustomText style={styles.numberText}>0</CustomText>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={styles.deleteButton}
+                            style={[styles.deleteButton, { width: isLandscape ? '12%' : '20%' }]}
                             onPress={handleDeletePress}
                         >
                             <Ionicons name="backspace-outline" size={isTablet ? 50 : 45} color={theme.colors.grayDark} />
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={[GlobalStyles.justifiedRow, { flex: 0.07, marginTop: 10, marginHorizontal: 20 }]}>
-                    <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', }}
-                        onPress={() => setIsPasscodeVisible(prev => !prev)}>
-                        <CustomText style={{ fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[{ width: isTablet ? '30%' : '40%', borderRadius: 10 }]} onPress={handleSubmitPress} disabled={loader}>
-                        <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={[styles.button]}>
-                            {loader ?
-                                <ActivityIndicator color={theme.colors.white} /> :
-                                <CustomText style={{ fontSize: isTablet ? theme.fontSize.heading : theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
-                            }
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-                <View style={{ marginTop: 20, justifyContent: 'center', alignItems: 'center', }}>
-                    <TouchableOpacity onPress={() => { modelRef.current?.open('alert') }} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.text }}>
-                        <CustomText>Re-Register Device</CustomText>
-                    </TouchableOpacity>
+                <View style={{ flex: 0.15 }}>
+                    <View style={[GlobalStyles.justifiedRow, { flex: 0.9, marginHorizontal: isLandscape ? 40 : 20 }]}>
+                        <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', }}
+                            onPress={() => setIsPasscodeVisible(prev => !prev)}>
+                            <CustomText style={{ fontSize: isTablet ? theme.fontSize.large : theme.fontSize.medium }} fontFamily={theme.fonts.Medium}>{isPasscodeVisible ? 'Hide Passcode' : 'Show Passcode'}</CustomText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[{ width: isLandscape ? '20%' : isTablet ? '30%' : '40%', borderRadius: 10 }]} onPress={handleSubmitPress} disabled={loader}>
+                            <LinearGradient colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]} style={[styles.button]}>
+                                {loader ?
+                                    <ActivityIndicator color={theme.colors.white} /> :
+                                    <CustomText style={{ fontSize: isTablet ? theme.fontSize.heading : theme.fontSize.medium }} fontFamily={theme.fonts.SemiBold} color={theme.colors.white}>Submit</CustomText>
+                                }
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ marginTop: isLandscape ? 0 : 15, justifyContent: 'center', alignItems: 'center', }}>
+                        <TouchableOpacity onPress={() => { modelRef.current?.open('alert') }} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.text }}>
+                            <CustomText>Re-Register Device</CustomText>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -271,6 +275,23 @@ const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.white,
+        justifyContent: 'space-between',
+    },
+    passlockLandscape: {
+        position: 'absolute',
+        top: 10,
+        right: -35,
+        opacity: 0.5
+    },
+    passlock: {
+        flex: 0.2,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    pinView: {
+        flex: isTablet ? 0.15 : Platform.OS === 'ios' ? 0.18 : 0.1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     innerContainer: {
         flex: isTablet ? 0.5 : Platform.OS === 'ios' ? 0.55 : 0.5,
