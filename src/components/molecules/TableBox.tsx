@@ -53,6 +53,7 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
                     backgroundColor: GREET_TABLE_STATUS_COLOR[type],
                     borderColor: GREET_TABLE_BORDER_COLOR[type],
                 },
+                screenType === 'reservation' ? { height: 120 } : { aspectRatio: 1 },
                 style
             ]}
             onPress={handlePress}
@@ -82,9 +83,8 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
 const createStyles = (theme: any) => StyleSheet.create({
     tableCell: {
         flex: 1,
-        aspectRatio: 1.5,
         margin: 2,
-        borderRadius: 10,
+        borderRadius: 5,
         borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',

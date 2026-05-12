@@ -87,7 +87,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     box: {
         flex: 1,
-        margin: 10,
+        margin: 5,
         maxWidth: isTablet ? '24%' : '30%'
     },
 });

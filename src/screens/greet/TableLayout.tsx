@@ -166,9 +166,9 @@ const TableLayout = ({ navigation }: any) => {
                 }
             />
             <View style={styles.container}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, paddingHorizontal: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10, paddingHorizontal: 10 }}>
                     <CustomText style={styles.title}>All Tables</CustomText>
-                    <AnimatedRefreshIcon getRefreshData={refreshHandler} />
+                    <AnimatedRefreshIcon getRefreshData={refreshHandler} color={theme.colors.default} />
                 </View>
 
                 <FlatList
@@ -192,7 +192,8 @@ const createStyles = (theme: any) => StyleSheet.create({
         flex: 1,
         paddingVertical: 10,
         paddingHorizontal: 10,
-        marginTop: 30,
+        marginTop: 15,
+        zIndex: 1
     },
     title: {
         fontSize: isTablet ? theme.fontSize.headingX : theme.fontSize.heading,
@@ -205,7 +206,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     emptyCell: {
         flex: 1,
-        aspectRatio: 1.5,
-        margin: 3,
+        height: 120,
+        margin: 2,
     },
 })

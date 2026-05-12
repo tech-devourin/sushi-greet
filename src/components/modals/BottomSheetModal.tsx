@@ -205,7 +205,7 @@ const createStyles = (theme: any) => StyleSheet.create({
         borderBottomLeftRadius: isTablet ? 15 : 0,
         overflow: 'hidden',
         backgroundColor: '#fff',
-        marginBottom: isTablet ? 15 : 0,
+        marginBottom: isTablet ? 30 : 0,
     },
     absolute: {
         position: 'absolute',
