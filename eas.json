@@ -7,11 +7,21 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "APP_VARIANT": "development"
+        //if build locally
+        // ,"ANDROID_SDK_ROOT": "/Users/pushkarasharma/Library/Android/sdk"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "APP_VARIANT": "preview"
+        //if build locally
+        // ,"ANDROID_SDK_ROOT": "/Users/pushkarasharma/Library/Android/sdk"
+      }
     },
     "production": {
       "autoIncrement": true,
