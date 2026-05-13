@@ -3,13 +3,15 @@ import AlertModal from '@components/modals/AlertModal';
 import ModalAsBottomSheet from '@components/modals/BottomSheetModal';
 import GreetTablesModal from '@components/modals/TablesModal';
 import AnimatedRefreshIcon from '@components/molecules/AnimatedRefreshIcon';
+import ModalHeader from '@components/molecules/ModalHeader';
 import { Feather } from '@expo/vector-icons';
 import { useAppDispatch } from '@redux/Hooks';
 import { setIsLoading } from '@redux/States';
 import { GREET_TABLE_BORDER_COLOR, GREET_TABLE_STATUS_COLOR, GREET_TABLE_STATUS_KEYS, isTablet, useEnvironment } from '@utils/Constants';
-import { callQRApi, logoutStaff } from '@utils/Helper';
+import { callQRApi, freeTableApi, logoutStaff } from '@utils/Helper';
 import { ModalRefType, TypeTableStatus } from '@utils/Types';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -72,13 +74,62 @@ const TableStatusCards: FC<Props> = ({ refreshHandler, tableStatus, totalPax, to
         dispatch(setIsLoading({ isLoading: false }));
     };
 
+    const freeTableHandler = async () => {
+        modelRef.current?.close();
+        dispatch(setIsLoading({ isLoading: true }));
+        const res = await freeTableApi(apiBaseUrl, selectedTable?.tid);
+        if (res) {
+            refreshHandler();
+            Toast.show({
+                type: 'success',
+                text1: 'Table freed successfully'
+            });
+        }
+        dispatch(setIsLoading({ isLoading: false }));
+    };
+
 
     const renderContent = (key: string | null) => {
         switch (key) {
             case 'tables':
-                return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={(item) => { modelRef.current?.replace('qrPrint'); setSelectedTable(item); }} />
+                return <GreetTablesModal closeModal={() => { modelRef.current?.close() }} type={selectedItem as keyof TypeTableStatus} submitHandler={(item) => {
+                    setSelectedTable(item);
+                    if (item.oid === null) {
+                        modelRef.current?.replace('tableOptions');
+                    } else {
+                        modelRef.current?.replace('qrPrint');
+                    }
+                }} />
+            case 'tableOptions':
+                return (
+                    <View style={{ paddingHorizontal: 20, paddingBottom: 20 }}>
+                        <ModalHeader heading={`Actions for table - ${selectedTable?.name}`} />
+                        <TouchableOpacity
+                            onPress={() => modelRef.current?.replace('qrPrint')}
+                        >
+                            <LinearGradient style={styles.optionButton} colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]}>
+                                <CustomText style={styles.optionText}>QR Code</CustomText>
+                            </LinearGradient>
+
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => modelRef.current?.replace('freeTable')}
+                        >
+                            <LinearGradient style={styles.optionButton} colors={[theme.colors.buttonGradient1, theme.colors.buttonGradient2]}>
+                                <CustomText style={styles.optionText}>Free Table</CustomText>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
+                )
             case 'qrPrint':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={`Are you sure, you want to get QR Code for table ${selectedTable?.name}?`} heading={`QR Code - ${selectedTable?.name}`} onConfirm={qrPrintHandler} />
+            case 'freeTable':
+                return <AlertModal
+                    closeModal={() => { modelRef.current?.close() }}
+                    description={`Are you sure you want to free table ${selectedTable?.name}?`}
+                    heading={`Free Table - ${selectedTable?.name}`}
+                    onConfirm={freeTableHandler}
+                />
             case 'logout':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
             default:
@@ -187,6 +238,20 @@ const createStyles = (theme: any) => StyleSheet.create({
         top: isTablet ? 18 : 12,
         right: isTablet ? 18 : 12,
         opacity: 0.5
+    },
+    optionButton: {
+        backgroundColor: theme.colors.background,
+        padding: 15,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.lightGray2,
+        alignItems: 'center',
+        marginTop: 20
+    },
+    optionText: {
+        fontSize: theme.fontSize.medium,
+        fontFamily: theme.fonts.SemiBold,
+        color: theme.colors.white
     }
 });
 

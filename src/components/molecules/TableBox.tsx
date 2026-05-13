@@ -58,6 +58,10 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
 
     const handlePress = () => {
         if (screenType === 'reservation' && type !== 'f') {
+            if (type === 'ot' && table.oid === null) {
+                onPress && onPress(table);
+                return;
+            }
             Toast.show({
                 type: 'error',
                 text1: 'Sorry, table is already occupied'
@@ -92,10 +96,10 @@ const TableBox: React.FC<TableBoxProps> = ({ table, onPress, style, screenType, 
             <CustomText style={styles.boxText} numberOfLines={3}>
                 {table.name || table.n}
             </CustomText>
-            <TableCapacityBadge 
-                capacity={table.capacity ?? table.c ?? 0} 
-                isLandscape={isLandscape} 
-                theme={theme} 
+            <TableCapacityBadge
+                capacity={table.capacity ?? table.c ?? 0}
+                isLandscape={isLandscape}
+                theme={theme}
             />
         </TouchableOpacity>
     );
@@ -140,7 +144,7 @@ const createStyles = (theme: any, isLandscape?: boolean) => StyleSheet.create({
 });
 
 export default memo(TableBox, (prev, next) => {
-    return prev.table.st === next.table.st && 
-           prev.table.ro === next.table.ro && 
-           prev.refreshTime === next.refreshTime;
+    return prev.table.st === next.table.st &&
+        prev.table.ro === next.table.ro &&
+        prev.refreshTime === next.refreshTime;
 });

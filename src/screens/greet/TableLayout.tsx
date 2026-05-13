@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '@redux/Hooks';
 import { selectBranchId, selectUserData, setIsLoading } from '@redux/States';
 import { useGlobalStyles } from '@styles/Styles';
 import { isTablet, TABLE_REFRESH_INTERVAL, useEnvironment } from '@utils/Constants';
-import { callQRApi, getTablesInfo, logoutStaff, makeAPIRequest } from '@utils/Helper';
+import { callQRApi, freeTableApi, getTablesInfo, logoutStaff, makeAPIRequest } from '@utils/Helper';
 import { replace } from '@utils/NavigationUtil';
 import { ModalRefType } from '@utils/Types';
 import moment from 'moment';
@@ -87,7 +87,15 @@ const TableLayout = ({ navigation }: any) => {
         }
         return <TableBox
             table={item.table}
-            onPress={() => { modelRef.current?.open('paxSet'); setSelectedItem(item.table) }}
+            onPress={() => {
+                setSelectedItem(item.table);
+                const tableType = item.table.st === 'PRINT_BILL' ? 'bp' : !!item.table.ro ? 'ot' : 'f';
+                if (tableType === 'ot' && item.table.oid === null) {
+                    modelRef.current?.open('freeTable');
+                } else {
+                    modelRef.current?.open('paxSet');
+                }
+            }}
             screenType='reservation'
             refreshTime={refreshTime}
         />;
@@ -123,6 +131,20 @@ const TableLayout = ({ navigation }: any) => {
         }
     }
 
+    const freeTable = async () => {
+        modelRef.current?.close();
+        dispatch(setIsLoading({ isLoading: true }));
+        const res = await freeTableApi(apiBaseUrl, selectedItem?.tid);
+        if (res) {
+            refreshHandler();
+            Toast.show({
+                type: 'success',
+                text1: 'Table freed successfully'
+            });
+        }
+        dispatch(setIsLoading({ isLoading: false }));
+    };
+
     const renderContent = (key: string | null) => {
         switch (key) {
             case 'paxSet':
@@ -134,6 +156,13 @@ const TableLayout = ({ navigation }: any) => {
                         createReservation(pax);
                     }}
                 />;
+            case 'freeTable':
+                return <AlertModal
+                    closeModal={() => { modelRef.current?.close() }}
+                    description={`Are you sure you want to free table ${selectedItem?.name}?`}
+                    heading={`Free Table - ${selectedItem?.name}`}
+                    onConfirm={freeTable}
+                />
             case 'logout':
                 return <AlertModal closeModal={() => { modelRef.current?.close() }} description={"Are you sure, you want to logout ?"} heading={"Logout"} onConfirm={logoutStaff} />
             default:

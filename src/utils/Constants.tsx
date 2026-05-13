@@ -26,7 +26,7 @@ export const MAX_DEVICE_LIMIT = 'Maximum device limit reached for Captain module
 export const NO_MODULE_ACCESS = 'Your account does not have permission to access any modules.'
 export const INVALID_STAFF = "Invalid staff credentials";
 
-export const OTA_VERSION = 1;
+export const OTA_VERSION = 2;
 
 
 export const GREET_TABLE_STATUS_COLOR = {
