@@ -1,7 +1,9 @@
-import CustomText from '@components/CustomText'
-import { FC } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { useTheme } from 'src/context/ThemeContext'
+import CustomText from '@components/CustomText';
+import { OTA_VERSION } from '@utils/Constants';
+import Constants from 'expo-constants';
+import { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useTheme } from 'src/context/ThemeContext';
 
 type TypeModalHeader = {
     prefixIcon?: any,
@@ -18,6 +20,8 @@ const ModalHeader: FC<TypeModalHeader> = ({ heading, prefixIcon, children }) => 
             <View style={styles.container}>
                 {prefixIcon && prefixIcon}
                 <CustomText style={styles.headerText} numberOfLines={1}>{heading}</CustomText>
+                <View style={{ flex: 1 }} />
+                {heading === 'Logout' && <CustomText style={styles.versionText}>v{Constants.expoConfig?.version}_{OTA_VERSION}</CustomText>}
             </View>
             {children}
         </View>
@@ -27,7 +31,8 @@ const ModalHeader: FC<TypeModalHeader> = ({ heading, prefixIcon, children }) => 
 const createStyles = (theme: any) => StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        flex: 1
     },
     header: {
         flexDirection: "row",
@@ -44,9 +49,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     },
     versionText: {
         color: theme.colors.grayDark,
-        textAlign: 'center',
-        fontSize: theme.fontSize.small,
-        marginTop: 5
+        fontSize: theme.fontSize.small
     }
 });
 
