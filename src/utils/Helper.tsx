@@ -100,17 +100,6 @@ export const openExternalLink = (url: string) => {
         .catch((err) => console.error("An error occurred", err));
 };
 
-// export const checkBranchValidity = async (apiBaseUrl: string, branchId: any) => {
-//     const url = apiBaseUrl + `isexpired`;
-//     const headers: any = { headers: { 'Content-Type': "application/json", br: branchId, src: 'CaptainPad' } };
-//     const response = await makeAPIRequestWithErrorHandling(url, null, 'POST', headers, false);
-//     if (response.statusCode === 401 || response.statusCode === 412) {
-//         Toast.show({ type: 'error', text1: 'License Expired', text2: 'Please get in touch with support for license renewal', visibilityTime: 5000 });
-//         return false;
-//     }
-//     return true;
-// };
-
 export const getTablesInfo = async (apiBaseUrl: string, branchId: number) => {
     const url = apiBaseUrl + `tablestatusbybranch?br_id=${branchId}`;
     const response = await makeAPIRequest(url, null, 'GET');
@@ -133,6 +122,12 @@ export const callQRApi = async (apiBaseUrl: string, tableId: any) => {
     const url = apiBaseUrl + `simpleresqr/sushi`;
     const headers: RequestInit = { headers: { 'Content-Type': "application/json", res: tableId } };
     const response = await makeAPIRequest(url, null, 'POST', headers, undefined, false, undefined, false);
+    return response;
+}
+
+export const freeTableApi = async (apiBaseUrl: string, tableId: any) => {
+    const url = apiBaseUrl + `checkedOutTableReservation?table_id=${tableId}`;
+    const response = await makeAPIRequest(url, null, 'PUT');
     return response;
 }
 
